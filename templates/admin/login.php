@@ -31,12 +31,21 @@ $focus = $username !== '' ? 'password' : 'username';
     </script>
 </head>
 <body class="admin admin-login">
+<div class="login">
+<aside class="login-stage">
+    <a class="login-stage__brand wordmark" href="<?= e(url()) ?>"><?= wordmark() ?></a>
+    <div class="login-stage__copy">
+        <p class="login-stage__kicker">Share analytics</p>
+        <p class="login-stage__line">What got shared, where, and when.</p>
+    </div>
+    <p class="login-stage__credit">Kuala Lumpur at dusk. Photo: James Kerwin, CC BY 2.0</p>
+</aside>
+<main class="login-pane">
 <button class="theme-toggle login-theme" type="button" data-theme-toggle aria-pressed="false" aria-label="Dark mode" title="Switch to dark mode">
     <i class="bi bi-sun theme-toggle__light" aria-hidden="true"></i><i class="bi bi-moon-stars theme-toggle__dark" aria-hidden="true"></i>
 </button>
-<main class="login-card">
-    <p class="login-card__brand wordmark"><?= wordmark() ?></p>
-    <h1 class="login-card__title">Sign in to share analytics</h1>
+<div class="login-card">
+    <h1 class="login-card__title">Sign in</h1>
     <p class="login-card__lede">See which stories readers share, and where.</p>
 
     <?php if ($notice !== null): ?>
@@ -73,9 +82,11 @@ $focus = $username !== '' ? 'password' : 'username';
         </button>
     </form>
 
-    <p class="login-hint">The admin account is created when you run <code>php bin/install.php</code>. See the README for the default login.</p>
-    <p class="text-center mb-0"><a class="login-card__back" href="<?= e(url()) ?>"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to the website</a></p>
+    <p class="login-hint"><i class="bi bi-terminal" aria-hidden="true"></i><span>The admin account is created when you run <code>php bin/install.php</code>. See the README for the default login.</span></p>
+</div>
+<p class="login-pane__foot"><a class="login-card__back" href="<?= e(url()) ?>"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to the website</a></p>
 </main>
+</div>
 <script src="<?= e(asset('js/login.js')) ?>" defer></script>
 </body>
 </html>

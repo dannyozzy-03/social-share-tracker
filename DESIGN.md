@@ -97,6 +97,7 @@ Tokens live in `public/assets/css/theme.css` on `:root` (light) and `[data-theme
 - **Sections:** `?section=food` narrows the front page to one section; the nav marks it current.
 - **Article** (after mStar's story page): a strip of the latest stories under the nav (current one on a dotted ground; scrolls sideways below 992px); then main column + sticky "Most shared" sidebar. The headline sits in a box over a dotted band, with a dateline and filled square share buttons (`share-bar--solid`); the cover has a caption box (photo credit) lifted over its lower edge; the body opens with the standfirst as a pull-quote and a bold capital lead-in word; then the share panel and previous/next article cards.
 - **Admin:** white top nav with the wordmark and an "Analytics" pill; page header; filter card; four KPI tiles (4/2/1 columns); timeline (8 cols) beside the platform mix (4 cols); top pages beside latest shares; page breakdown table.
+- **Sign in:** split screen. Left, the front-page cover (KL at dusk) under an ink gradient carries the wordmark, a brand-ruled "Share analytics" kicker, the line "What got shared, where, and when." and the photo credit. Right, the form on a plain surface pane with the setup hint and a back link. Below 992px the photo becomes an 11rem band above the form.
 - **Mobile:** the section nav scrolls sideways with a fade; cards stack; the article gets a fixed share dock that parks while the inline share panel is visible.
 
 ## Motion
@@ -109,7 +110,7 @@ Tokens live in `public/assets/css/theme.css` on `:root` (light) and `[data-theme
 
 ## Elevation & Depth
 
-- `--shadow-sm` on admin cards; `--shadow-md` on the lead text panel and the sign-in card.
+- `--shadow-sm` on admin cards; `--shadow-md` on the lead text panel. The sign-in form sits flat on its pane, with no card.
 - Overlaps (lead panel over cover, card text box over image) rely on grid paint order, not z-index, so the stretched link covers the whole card.
 
 ## Components

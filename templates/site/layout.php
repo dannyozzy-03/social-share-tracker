@@ -72,7 +72,7 @@ $isHome = ($_SERVER['SCRIPT_NAME'] ?? '') !== '' && str_ends_with((string) $_SER
             <span class="d-none d-sm-inline"><?= e(date('l, j F Y')) ?></span><span class="d-sm-none"><?= e(date('j M Y')) ?></span>
         </time>
         <div class="topbar__tools">
-            <a class="topbar__link" href="<?= e(url('admin/')) ?>"><i class="bi bi-bar-chart-line" aria-hidden="true"></i> Share analytics</a>
+            <a class="topbar__signin" href="<?= e(url('admin/')) ?>"><i class="bi bi-person-lock" aria-hidden="true"></i> <span class="d-none d-sm-inline">Admin sign in</span><span class="d-sm-none">Sign in</span></a>
             <button class="theme-toggle theme-toggle--bar" type="button" data-theme-toggle aria-pressed="false" aria-label="Dark mode" title="Switch to dark mode">
                 <i class="bi bi-sun theme-toggle__light" aria-hidden="true"></i><i class="bi bi-moon-stars theme-toggle__dark" aria-hidden="true"></i>
             </button>
@@ -115,7 +115,7 @@ $isHome = ($_SERVER['SCRIPT_NAME'] ?? '') !== '' && str_ends_with((string) $_SER
                 <?php foreach (ArticleRepository::sections() as $name): ?>
                     <li><a href="<?= e(ArticleRepository::sectionUrl($name)) ?>"><?= e($name) ?></a></li>
                 <?php endforeach; ?>
-                <li><a href="<?= e(url('admin/')) ?>">Share analytics</a></li>
+                <li><a href="<?= e(url('admin/')) ?>">Admin sign in</a></li>
             </ul>
         </div>
         <p class="site-footer__note">&copy; <?= e(date('Y')) ?> <?= e($siteName) ?>. A demo publication built for a web developer practical test. Articles are placeholder content and share counts include generated demo data.</p>

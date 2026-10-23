@@ -31,9 +31,22 @@ body.site a { color: inherit; }
   min-height: 2.5rem;
 }
 .topbar__tools { display: flex; align-items: center; gap: 1rem; }
-body.site .topbar__link { color: var(--topbar-ink); font-weight: 500; text-decoration: none; }
-body.site .topbar__link:hover { color: #FFFFFF; }
-.topbar__link .bi { margin-right: .25rem; }
+/* The way into the admin: an outlined pill that pairs with the round theme toggle beside it. */
+body.site .topbar__signin {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  min-height: 1.875rem;
+  padding: 0 .8rem;
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 999px;
+  color: #FFFFFF;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color .2s var(--ease-out), background-color .2s var(--ease-out);
+}
+body.site .topbar__signin:hover { border-color: rgba(255, 255, 255, .5); background: rgba(255, 255, 255, .08); }
+.topbar__signin .bi { font-size: .9375rem; line-height: 1; }
 .theme-toggle--bar { width: 1.875rem; height: 1.875rem; border-color: rgba(255, 255, 255, .22); color: #FFFFFF; font-size: .875rem; }
 .theme-toggle--bar:hover { border-color: rgba(255, 255, 255, .5); background: rgba(255, 255, 255, .08); }
 
