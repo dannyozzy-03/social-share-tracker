@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 300" fill="#050508">
+  <!-- Authored silhouette: a tall rainforest tree with buttress roots and a layered crown, a smaller tree beside it. -->
+  <ellipse cx="128" cy="62" rx="60" ry="34"/>
+  <ellipse cx="82" cy="92" rx="52" ry="28"/>
+  <ellipse cx="176" cy="94" rx="58" ry="30"/>
+  <ellipse cx="130" cy="104" rx="70" ry="26"/>
+  <ellipse cx="124" cy="34" rx="36" ry="22"/>
+  <path d="M120 120c-2 56-4 118-10 180h28c-6-62-8-124-10-180z"/>
+  <path d="M84 300c18-6 30-22 34-56l4 56z"/>
+  <path d="M168 300c-18-6-30-22-34-56l-4 56z"/>
+  <path d="M92 300c10-2 18-10 23-24l2 24z"/>
+  <path d="M120 140c-14-10-30-14-46-12 14 4 26 10 44 22z"/>
+  <path d="M130 132c14-12 30-18 50-16-16 6-30 12-48 26z"/>
+  <ellipse cx="30" cy="196" rx="28" ry="18"/>
+  <ellipse cx="22" cy="210" rx="22" ry="12"/>
+  <ellipse cx="42" cy="210" rx="22" ry="12"/>
+  <path d="M29 214c-1 32-2 58-5 86h12c-3-28-4-54-5-86z"/>
+</svg>

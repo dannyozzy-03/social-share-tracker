@@ -1,0 +1,177 @@
+@font-face {
+  font-family: "Poppins";
+  src: url("../fonts/poppins-600.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("../fonts/poppins-700.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("../fonts/poppins-800.woff2") format("woff2");
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Albert Sans";
+  src: url("../fonts/albert-sans-400.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Albert Sans";
+  src: url("../fonts/albert-sans-400-italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Albert Sans";
+  src: url("../fonts/albert-sans-500.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Albert Sans";
+  src: url("../fonts/albert-sans-600.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Albert Sans";
+  src: url("../fonts/albert-sans-700.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* Light is the default; [data-theme="dark"] swaps the same tokens. */
+:root {
+  --brand: #0A33FF;
+  --brand-strong: #0626C7;
+  --brand-ink: #0A33FF;
+  --brand-soft: #EBEFFF;
+  --hot: #C2185B;
+  --live: #E5397F;
+
+  --bg: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-2: #F5F6F9;
+  --surface-3: #ECEEF3;
+  --ink: #0F1222;
+  --ink-soft: #474D62;
+  --ink-faint: #676D82;
+  --line: #E4E6EC;
+  --line-strong: #CDD1DB;
+  --topbar: #0F1222;
+  --topbar-ink: #D5D8E2;
+  --shadow-sm: 0 1px 2px rgba(15, 18, 34, .06);
+  --shadow-md: 0 10px 30px -12px rgba(15, 18, 34, .18);
+  --dots: rgba(15, 18, 34, .14);
+  --code: #B0125A;
+
+  --font-display: "Poppins", "Segoe UI", system-ui, sans-serif;
+  --font-text: "Albert Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius: 10px;
+  --radius-sm: 6px;
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --brand: #3E63FF;
+  --brand-strong: #2A50F0;
+  --brand-ink: #8EA4FF;
+  --brand-soft: rgba(110, 139, 255, .14);
+  --hot: #FF7AB0;
+  --live: #FF6AAE;
+
+  --bg: #0D0F17;
+  --surface: #151826;
+  --surface-2: #11141F;
+  --surface-3: #1D2133;
+  --ink: #F2F3F8;
+  --ink-soft: #B4B9CC;
+  --ink-faint: #8A90A6;
+  --line: #262B3D;
+  --line-strong: #363C52;
+  --topbar: #07080D;
+  --topbar-ink: #B4B9CC;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-md: 0 14px 34px -14px rgba(0, 0, 0, .7);
+  --dots: rgba(255, 255, 255, .12);
+  --code: #FFB3D3;
+  color-scheme: dark;
+}
+
+::selection { background: var(--brand); color: #FFFFFF; }
+html { scrollbar-color: var(--line-strong) var(--bg); }
+
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 2px; }
+
+/* Wordmark: the publication name set in the display face, "News" in brand blue. */
+.wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .3em;
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.wordmark__name { color: var(--ink); }
+.wordmark__desk { color: var(--brand-ink); }
+
+.headline {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.15;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color .2s var(--ease-out), background-color .2s var(--ease-out);
+}
+.theme-toggle:hover { border-color: var(--brand); background: var(--brand-soft); }
+.theme-toggle__light,
+[data-theme="dark"] .theme-toggle__dark { display: none; }
+[data-theme="dark"] .theme-toggle__light { display: inline; }
+
+/* Page-to-page navigation: the header stays put (named in site.css / admin.css), the page body
+   fades and rises in, and a story's cover image morphs into the article hero. */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: vt-out .16s ease-in both; }
+::view-transition-new(root) { animation: vt-in .38s var(--ease-out) both; }
+::view-transition-group(*) { animation-duration: .38s; animation-timing-function: var(--ease-out); }
+::view-transition-old(*),
+::view-transition-new(*) { height: 100%; object-fit: cover; overflow: clip; }
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(12px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}

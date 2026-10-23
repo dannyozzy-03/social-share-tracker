@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 232" fill="#050508">
+  <!-- Authored silhouette: a hawker cart under a scalloped umbrella, a wok on the counter, plastic stools beside it. -->
+  <path d="M18 78C46 24 96 6 140 6s94 18 122 72c-9-6-18-6-26 0-8-6-18-6-26 0-8-6-18-6-26 0-8-6-18-6-26 0-8-6-18-6-26 0-8-6-18-6-26 0-8-6-18-6-26 0-8-6-18-6-26 0-8-6-17-6-26 0z"/>
+  <rect x="137" y="2" width="6" height="128"/>
+  <path d="M84 118c4-12 14-18 26-18s22 6 26 18z"/>
+  <path d="M150 112c0-8 6-12 12-12s12 4 12 12z"/>
+  <rect x="46" y="118" width="170" height="10" rx="3"/>
+  <path d="M56 128h150v62H56z"/>
+  <path d="M60 196h142v-6H60z"/>
+  <circle cx="84" cy="212" r="20"/>
+  <circle cx="178" cy="212" r="20"/>
+  <path d="M226 186h34v7h-34z"/>
+  <path d="M229 193h5l-4 39h-5zM252 193h5l5 39h-5z"/>
+  <path d="M8 196h28v6H8z"/>
+  <path d="M11 202h4l-3 30H8zM29 202h4l3 30h-4z"/>
+</svg>

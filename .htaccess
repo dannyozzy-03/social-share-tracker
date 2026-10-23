@@ -1,0 +1,13 @@
+# Only used when the whole project sits in htdocs: serve public/, block everything else.
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteRule ^(bin|config|database|docs|src|templates|tests|\.git|\.github|\.impeccable)(/|$) - [F,L]
+    RewriteRule ^(README\.md|PRODUCT\.md|DESIGN\.md|\.gitignore|\.htaccess)$ - [F,L]
+
+    RewriteCond %{REQUEST_URI} !/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

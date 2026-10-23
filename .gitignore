@@ -1,0 +1,16 @@
+# Local settings (database password, app secret)
+/config/config.php
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# Impeccable transient files
+/.impeccable/review/
+/.impeccable/questions/
+/.impeccable/decision/
+/.impeccable/reference/
+/.impeccable/brief-*.md

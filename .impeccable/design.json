@@ -1,0 +1,666 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-22T05:54:48+00:00",
+  "title": "Design System: Ajaklah News",
+  "extensions": {
+    "colorMeta": {
+      "cyc-black": {
+        "role": "neutral",
+        "displayName": "Cyclorama Black",
+        "canonical": "#050508",
+        "oklch": "oklch(11.7% 0.009 284.9)",
+        "tonalRamp": [
+          "#0B0B0F",
+          "#242429",
+          "#414147",
+          "#606166",
+          "#818288",
+          "#A4A4AA",
+          "#C8C8CF",
+          "#EEEEF4"
+        ]
+      },
+      "cyc-night": {
+        "role": "neutral",
+        "displayName": "Night Wall",
+        "canonical": "#0B0D2A",
+        "oklch": "oklch(17.8% 0.058 275.8)",
+        "tonalRamp": [
+          "#060723",
+          "#1E2241",
+          "#393F61",
+          "#585F82",
+          "#7880A6",
+          "#9BA3CA",
+          "#BEC7F0",
+          "#EAEEFF"
+        ]
+      },
+      "cobalt": {
+        "role": "primary",
+        "displayName": "Horizon Cobalt",
+        "canonical": "#0A33FF",
+        "oklch": "oklch(48.6% 0.290 264.7)",
+        "tonalRamp": [
+          "#000133",
+          "#020578",
+          "#0414C1",
+          "#1141F5",
+          "#4277FD",
+          "#7AA2FB",
+          "#B1C9FC",
+          "#E7EFFE"
+        ]
+      },
+      "cobalt-sheen": {
+        "role": "primary",
+        "displayName": "Cobalt Sheen",
+        "canonical": "#3B5BFF",
+        "oklch": "oklch(55.6% 0.244 268.3)",
+        "tonalRamp": [
+          "#020133",
+          "#0C0178",
+          "#1B0CC0",
+          "#2D44E8",
+          "#4F74FC",
+          "#81A0FA",
+          "#B4C8FC",
+          "#E8EEFE"
+        ]
+      },
+      "rose": {
+        "role": "secondary",
+        "displayName": "Footlight Rose",
+        "canonical": "#FF6AAE",
+        "oklch": "oklch(72.7% 0.193 354.5)",
+        "tonalRamp": [
+          "#1C000D",
+          "#480128",
+          "#780747",
+          "#AC1268",
+          "#D44289",
+          "#FD68AC",
+          "#FDAECD",
+          "#FEE8EF"
+        ]
+      },
+      "dawn": {
+        "role": "secondary",
+        "displayName": "Dawn Rose",
+        "canonical": "#FFC1D6",
+        "oklch": "oklch(87.3% 0.076 356.6)",
+        "tonalRamp": [
+          "#1C000C",
+          "#401226",
+          "#612F43",
+          "#844F62",
+          "#A76F83",
+          "#CC92A6",
+          "#F2B5CA",
+          "#FEE8EF"
+        ]
+      },
+      "day-wash": {
+        "role": "neutral",
+        "displayName": "Day Wash",
+        "canonical": "#F7F5FF",
+        "oklch": "oklch(97.5% 0.013 295.3)",
+        "tonalRamp": [
+          "#0B0A10",
+          "#25242B",
+          "#424149",
+          "#626068",
+          "#83818A",
+          "#A5A3AD",
+          "#C9C8D1",
+          "#EFEDF7"
+        ]
+      },
+      "white-day": {
+        "role": "neutral",
+        "displayName": "White Day",
+        "canonical": "#FFFFFF",
+        "oklch": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#A5A5A5",
+          "#C9C9C9",
+          "#EEEEEE"
+        ]
+      },
+      "ink-night": {
+        "role": "neutral",
+        "displayName": "Night Ink",
+        "canonical": "#F4F2FF",
+        "oklch": "oklch(96.6% 0.017 293.1)",
+        "tonalRamp": [
+          "#0B0A12",
+          "#25242D",
+          "#42404B",
+          "#61606A",
+          "#82818C",
+          "#A5A3AF",
+          "#C9C7D4",
+          "#EFEDF9"
+        ]
+      },
+      "ink-night-soft": {
+        "role": "neutral",
+        "displayName": "Night Ink Soft",
+        "canonical": "#B9B6D6",
+        "oklch": "oklch(78.9% 0.045 289.6)",
+        "tonalRamp": [
+          "#0B071D",
+          "#252139",
+          "#413E59",
+          "#605D7A",
+          "#817E9C",
+          "#A4A1C0",
+          "#C8C5E5",
+          "#EEECFF"
+        ]
+      },
+      "ink-night-faint": {
+        "role": "neutral",
+        "displayName": "Night Ink Faint",
+        "canonical": "#7D7AA3",
+        "oklch": "oklch(59.8% 0.062 287.7)",
+        "tonalRamp": [
+          "#0B0523",
+          "#241F41",
+          "#403C61",
+          "#5F5C83",
+          "#807DA6",
+          "#A29FCA",
+          "#C6C4F0",
+          "#EDECFF"
+        ]
+      },
+      "ink-day": {
+        "role": "neutral",
+        "displayName": "Day Ink",
+        "canonical": "#0E0D24",
+        "oklch": "oklch(17.5% 0.046 282.5)",
+        "tonalRamp": [
+          "#09081E",
+          "#22223B",
+          "#3E3F5A",
+          "#5D5E7B",
+          "#7E7F9E",
+          "#A0A2C2",
+          "#C4C6E7",
+          "#ECEDFF"
+        ]
+      },
+      "ink-day-soft": {
+        "role": "neutral",
+        "displayName": "Day Ink Soft",
+        "canonical": "#4A4766",
+        "oklch": "oklch(41.4% 0.051 288.4)",
+        "tonalRamp": [
+          "#0B061F",
+          "#24203C",
+          "#413E5C",
+          "#605D7D",
+          "#807EA0",
+          "#A3A0C4",
+          "#C7C4E9",
+          "#EDECFE"
+        ]
+      },
+      "line-night": {
+        "role": "neutral",
+        "displayName": "Night Hairline",
+        "canonical": "rgba(185, 182, 214, .16)",
+        "tonalRamp": [
+          "#0B071D",
+          "#252139",
+          "#413E59",
+          "#605D7A",
+          "#817E9C",
+          "#A4A1C0",
+          "#C8C5E5",
+          "#EEECFF"
+        ]
+      },
+      "line-day": {
+        "role": "neutral",
+        "displayName": "Day Hairline",
+        "canonical": "#E3DFF2",
+        "oklch": "oklch(91.2% 0.026 295.5)",
+        "tonalRamp": [
+          "#0C0915",
+          "#262330",
+          "#433F4F",
+          "#625E6F",
+          "#837F91",
+          "#A6A2B4",
+          "#CAC6D9",
+          "#EFEBFF"
+        ]
+      },
+      "booth-black": {
+        "role": "neutral",
+        "displayName": "Booth Black",
+        "canonical": "#07070B",
+        "oklch": "oklch(13.1% 0.010 285.0)",
+        "tonalRamp": [
+          "#0B0B0F",
+          "#24242A",
+          "#414147",
+          "#606167",
+          "#818288",
+          "#A4A4AB",
+          "#C8C8CF",
+          "#EDEEF5"
+        ]
+      },
+      "booth-panel": {
+        "role": "neutral",
+        "displayName": "Booth Panel",
+        "canonical": "#0C0D1B",
+        "oklch": "oklch(16.6% 0.029 279.6)",
+        "tonalRamp": [
+          "#090A17",
+          "#222433",
+          "#3E4152",
+          "#5D6072",
+          "#7E8194",
+          "#A1A3B8",
+          "#C5C8DD",
+          "#EBEDFE"
+        ]
+      },
+      "booth-panel-raised": {
+        "role": "neutral",
+        "displayName": "Booth Panel Raised",
+        "canonical": "#12132A",
+        "oklch": "oklch(20.0% 0.046 279.5)",
+        "tonalRamp": [
+          "#08081E",
+          "#21223B",
+          "#3D3F5A",
+          "#5C5F7B",
+          "#7C809E",
+          "#9FA3C2",
+          "#C2C7E7",
+          "#EBEDFF"
+        ]
+      },
+      "booth-line": {
+        "role": "neutral",
+        "displayName": "Booth Hairline",
+        "canonical": "rgba(185, 182, 214, .14)",
+        "tonalRamp": [
+          "#0B071D",
+          "#252139",
+          "#413E59",
+          "#605D7A",
+          "#817E9C",
+          "#A4A1C0",
+          "#C8C5E5",
+          "#EEECFF"
+        ]
+      },
+      "booth-ink": {
+        "role": "neutral",
+        "displayName": "Booth Ink",
+        "canonical": "#E9E7F5",
+        "oklch": "oklch(93.4% 0.019 292.6)",
+        "tonalRamp": [
+          "#0B0A12",
+          "#25232E",
+          "#42404B",
+          "#615F6B",
+          "#82808D",
+          "#A5A3B0",
+          "#C9C7D5",
+          "#EEECFA"
+        ]
+      },
+      "booth-ink-secondary": {
+        "role": "neutral",
+        "displayName": "Booth Ink Secondary",
+        "canonical": "#9E9BC2",
+        "oklch": "oklch(70.6% 0.057 288.4)",
+        "tonalRamp": [
+          "#0B0521",
+          "#24203F",
+          "#413D5E",
+          "#605C80",
+          "#807DA3",
+          "#A3A0C7",
+          "#C7C4ED",
+          "#EDECFF"
+        ]
+      },
+      "booth-link": {
+        "role": "primary",
+        "displayName": "Booth Link Cobalt",
+        "canonical": "#93A6FF",
+        "oklch": "oklch(74.7% 0.130 273.7)",
+        "tonalRamp": [
+          "#050031",
+          "#161562",
+          "#2F3786",
+          "#4B58AA",
+          "#6A7BD0",
+          "#8B9EF6",
+          "#B8C6FD",
+          "#E9EEFE"
+        ]
+      },
+      "code-rose": {
+        "role": "secondary",
+        "displayName": "Code Rose",
+        "canonical": "#FFB3D3",
+        "oklch": "oklch(84.7% 0.097 352.4)",
+        "tonalRamp": [
+          "#1D000E",
+          "#450829",
+          "#672947",
+          "#8A4867",
+          "#AF6988",
+          "#D48CAB",
+          "#FBAFCF",
+          "#FEE7F0"
+        ]
+      },
+      "invalid-rose": {
+        "role": "secondary",
+        "displayName": "Invalid Rose",
+        "canonical": "#FF8FB8",
+        "oklch": "oklch(78.1% 0.142 357.6)",
+        "tonalRamp": [
+          "#1D000B",
+          "#480425",
+          "#770F42",
+          "#9D3661",
+          "#C35983",
+          "#EA7CA5",
+          "#FCB0C9",
+          "#FFE7EE"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Lead and article headlines in stencil caps, balanced wrap."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section heads, booth page titles, pass-it-on calls."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Story titles in the cue sheet and more-stories list."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Site UI and summaries; tabular numerals throughout."
+      },
+      "reading": {
+        "displayName": "Reading",
+        "purpose": "Article body on the white-day sheet, 68ch measure."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase tracked labels for buttons, gels, meta, form labels and table heads."
+      },
+      "panel-label": {
+        "displayName": "Panel Label",
+        "purpose": "Every booth panel heading."
+      },
+      "numeral": {
+        "displayName": "Numeral",
+        "purpose": "Share counts, fader values, readout total."
+      }
+    },
+    "shadows": [
+      {
+        "name": "cue-glow",
+        "value": "0 14px 34px -12px rgba(10, 51, 255, .9)",
+        "purpose": "Cue button on hover and focus."
+      },
+      {
+        "name": "gel-glow",
+        "value": "0 16px 30px -14px var(--gel-stage)",
+        "purpose": "Share gel on hover and focus (night); day uses -16px and var(--gel)."
+      },
+      {
+        "name": "booth-primary-glow",
+        "value": "0 16px 34px -14px rgba(255, 106, 174, .85)",
+        "purpose": "Admin primary button hover."
+      },
+      {
+        "name": "sheet-lift",
+        "value": "0 40px 90px -30px rgba(10, 20, 96, .55)",
+        "purpose": "White reading sheet over the dawn wall."
+      },
+      {
+        "name": "booth-lift",
+        "value": "0 40px 80px -30px rgba(0, 0, 0, .9)",
+        "purpose": "Login card over its cyc gradient."
+      },
+      {
+        "name": "lamp-glow",
+        "value": "0 0 10px 1px var(--gel)",
+        "purpose": "Lit channel lamp."
+      },
+      {
+        "name": "set-piece-halo",
+        "value": "drop-shadow(0 -2px 18px rgba(255, 140, 192, .35))",
+        "purpose": "Rose backlight filter on silhouettes."
+      },
+      {
+        "name": "focus-ring",
+        "value": "outline: 2px solid #FF6AAE; outline-offset: 3px",
+        "purpose": "Global focus-visible outline."
+      },
+      {
+        "name": "input-focus",
+        "value": "0 0 0 .2rem rgba(10, 51, 255, .35)",
+        "purpose": "Booth input focus ring with cobalt-sheen border."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Every state transition."
+      },
+      {
+        "name": "fade-time",
+        "value": ".6s",
+        "purpose": "Cue-row horizon hairline fade."
+      },
+      {
+        "name": "state",
+        "value": ".25s to .3s",
+        "purpose": "Hover, border, glow and chip transitions."
+      },
+      {
+        "name": "gel-bloom",
+        "value": ".9s",
+        "purpose": "GO cue bloom rising up a share gel."
+      },
+      {
+        "name": "count-step",
+        "value": ".45s",
+        "purpose": "Share count stepping up after a share."
+      },
+      {
+        "name": "fader-level",
+        "value": ".5s",
+        "purpose": "Fader fill and cap moving to a new level."
+      },
+      {
+        "name": "stage-dawn",
+        "value": "animation-timeline: scroll(root)",
+        "purpose": "Article stage brightens night to day with scroll, where supported."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "durations .001ms",
+        "purpose": "prefers-reduced-motion parks every state."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "576px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "992px"
+      },
+      {
+        "name": "xl",
+        "value": "1200px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Cue Button",
+      "kind": "button",
+      "refersTo": "button-cue",
+      "description": "Primary call to action on the night stage, e.g. Read the story.",
+      "html": "<div class=\"ds-night\"><a class=\"ds-btn-cue\" href=\"#\">Read the story <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"currentColor\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8\"/></svg></a></div>",
+      "css": ":host{--cyc-black:#050508;--cobalt:#0A33FF;--cobalt-sheen:#3B5BFF;--rose:#FF6AAE;--ink-night:#F4F2FF;--font-text:\"Albert Sans\",system-ui,sans-serif;--ease-out:cubic-bezier(.16,1,.3,1);} .ds-night{background:var(--cyc-black);padding:2rem;} .ds-btn-cue{display:inline-flex;align-items:center;gap:.75rem;padding:.95rem 1.5rem;border:1px solid var(--cobalt-sheen);background:rgba(10,51,255,.14);color:var(--ink-night);font-family:var(--font-text);font-size:.8125rem;font-weight:600;letter-spacing:.2em;text-decoration:none;text-transform:uppercase;transition:background-color .3s var(--ease-out),border-color .3s var(--ease-out),box-shadow .3s var(--ease-out);} .ds-btn-cue svg{transition:transform .3s var(--ease-out);} .ds-btn-cue:hover,.ds-btn-cue:focus-visible{background:var(--cobalt);border-color:var(--cobalt);box-shadow:0 14px 34px -12px rgba(10,51,255,.9);} .ds-btn-cue:hover svg{transform:translateX(4px);} .ds-btn-cue:focus-visible{outline:2px solid var(--rose);outline-offset:3px;}"
+    },
+    {
+      "name": "Booth Primary and Outline Buttons",
+      "kind": "button",
+      "refersTo": "button-cue-primary",
+      "description": "Admin primary action (apply, save) beside the booth outline button (export, cancel).",
+      "html": "<div class=\"ds-booth\"><button class=\"ds-btn-primary\" type=\"button\">Apply</button><button class=\"ds-btn-booth\" type=\"button\">Export CSV</button></div>",
+      "css": ":host{--booth-black:#07070B;--cobalt:#0A33FF;--rose:#FF6AAE;--ink-night:#F4F2FF;--font-text:\"Albert Sans\",system-ui,sans-serif;--ease-out:cubic-bezier(.16,1,.3,1);} .ds-booth{background:var(--booth-black);padding:2rem;display:flex;gap:.5rem;} .ds-btn-primary,.ds-btn-booth{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.75rem;line-height:1;border-radius:2px;font-family:var(--font-text);font-weight:600;text-transform:uppercase;cursor:pointer;transition:box-shadow .3s var(--ease-out),background-color .2s,border-color .2s;} .ds-btn-primary{padding:.7rem 1.4rem;background:var(--cobalt);border:1px solid var(--cobalt);color:#fff;font-size:.8125rem;letter-spacing:.18em;} .ds-btn-primary:hover{background:#2348FF;border-color:#2348FF;box-shadow:0 16px 34px -14px rgba(255,106,174,.85);} .ds-btn-primary:active{background:#0627CC;} .ds-btn-booth{padding:.375rem 1rem;background:transparent;border:1px solid rgba(185,182,214,.3);color:var(--ink-night);font-size:.75rem;letter-spacing:.16em;} .ds-btn-booth:hover{background:var(--cobalt);border-color:var(--cobalt);color:#fff;} .ds-btn-primary:focus-visible,.ds-btn-booth:focus-visible{outline:2px solid var(--rose);outline-offset:3px;}"
+    },
+    {
+      "name": "Share Gel (night)",
+      "kind": "custom",
+      "refersTo": "gel-night",
+      "description": "Share control on the dark stage: platform colour as icon tint, foot strip and under-glow.",
+      "html": "<div class=\"ds-night\"><a class=\"ds-gel\" href=\"#\" style=\"--gel:#1877F2;--gel-stage:#1877F2\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951\"/></svg><span>Facebook</span></a><a class=\"ds-gel\" href=\"#\" style=\"--gel:#000000;--gel-stage:#E9E7F5\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z\"/></svg><span>X</span></a></div>",
+      "css": ":host{--cyc-black:#050508;--rose:#FF6AAE;--ink-night:#F4F2FF;--line-night:rgba(185,182,214,.16);--font-text:\"Albert Sans\",system-ui,sans-serif;--ease-out:cubic-bezier(.16,1,.3,1);} .ds-night{background:var(--cyc-black);padding:2rem;display:flex;gap:.5rem;} .ds-gel{position:relative;isolation:isolate;display:inline-flex;align-items:center;gap:.5rem;min-height:2.875rem;padding:.65rem .85rem .6rem;overflow:hidden;border:1px solid var(--line-night);background:rgba(255,255,255,.04);color:var(--ink-night);font-family:var(--font-text);font-size:.75rem;font-weight:600;letter-spacing:.1em;text-decoration:none;text-transform:uppercase;transition:border-color .3s var(--ease-out),box-shadow .3s var(--ease-out),transform .3s var(--ease-out);} .ds-gel svg{color:var(--gel-stage);} .ds-gel::after{content:\"\";position:absolute;inset:auto 0 0 0;height:4px;background:var(--gel-stage);transform:scaleY(.5);transform-origin:bottom;transition:transform .3s var(--ease-out);} .ds-gel:hover,.ds-gel:focus-visible{transform:translateY(-2px);border-color:var(--gel-stage);box-shadow:0 16px 30px -14px var(--gel-stage);} .ds-gel:hover::after,.ds-gel:focus-visible::after{transform:none;} .ds-gel:focus-visible{outline:2px solid var(--rose);outline-offset:3px;}"
+    },
+    {
+      "name": "Share Gel (day)",
+      "kind": "custom",
+      "refersTo": "gel-day",
+      "description": "Share control on the white reading sheet, carrying the true brand colour.",
+      "html": "<div class=\"ds-day\"><a class=\"ds-gel\" href=\"#\" style=\"--gel:#1877F2\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951\"/></svg><span>Facebook</span></a><a class=\"ds-gel\" href=\"#\" style=\"--gel:#000000\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z\"/></svg><span>X</span></a></div>",
+      "css": ":host{--white-day:#FFFFFF;--rose:#FF6AAE;--ink-day:#0E0D24;--line-day:#E3DFF2;--font-text:\"Albert Sans\",system-ui,sans-serif;--ease-out:cubic-bezier(.16,1,.3,1);} .ds-day{background:var(--white-day);padding:2rem;display:flex;gap:.5rem;} .ds-gel{position:relative;display:inline-flex;align-items:center;gap:.5rem;min-height:2.875rem;padding:.65rem .85rem .6rem;overflow:hidden;border:1px solid var(--line-day);background:var(--white-day);color:var(--ink-day);font-family:var(--font-text);font-size:.75rem;font-weight:600;letter-spacing:.1em;text-decoration:none;text-transform:uppercase;transition:border-color .3s var(--ease-out),box-shadow .3s var(--ease-out),transform .3s var(--ease-out);} .ds-gel svg{color:var(--gel);} .ds-gel::after{content:\"\";position:absolute;inset:auto 0 0 0;height:4px;background:var(--gel);transform:scaleY(.5);transform-origin:bottom;transition:transform .3s var(--ease-out);} .ds-gel:hover,.ds-gel:focus-visible{transform:translateY(-2px);border-color:var(--gel);box-shadow:0 16px 30px -16px var(--gel);} .ds-gel:hover::after,.ds-gel:focus-visible::after{transform:none;} .ds-gel:focus-visible{outline:2px solid var(--rose);outline-offset:3px;}"
+    },
+    {
+      "name": "Booth Input",
+      "kind": "input",
+      "refersTo": "input-booth",
+      "description": "Admin text field with a faint tracked-caps label above.",
+      "html": "<div class=\"ds-booth\"><label class=\"ds-label\" for=\"ds-f\">Share URL template</label><input class=\"ds-input\" id=\"ds-f\" placeholder=\"https://wa.me/?text={title}\"></div>",
+      "css": ":host{--booth-black:#07070B;--booth-line:rgba(185,182,214,.14);--cobalt-sheen:#3B5BFF;--ink-night:#F4F2FF;--ink-night-faint:#7D7AA3;--font-text:\"Albert Sans\",system-ui,sans-serif;} .ds-booth{background:var(--booth-black);padding:2rem;font-family:var(--font-text);} .ds-label{display:block;margin-bottom:.45rem;color:var(--ink-night-faint);font-size:.6875rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;} .ds-input{width:100%;max-width:24rem;padding:.375rem .75rem;background:var(--booth-black);border:1px solid var(--booth-line);border-radius:2px;color:var(--ink-night);font:inherit;font-size:1rem;transition:border-color .15s,box-shadow .15s;} .ds-input::placeholder{color:var(--ink-night-faint);} .ds-input:focus,.ds-input:focus-visible{outline:none;border-color:var(--cobalt-sheen);box-shadow:0 0 0 .2rem rgba(10,51,255,.35);}"
+    },
+    {
+      "name": "Channel Chip",
+      "kind": "chip",
+      "refersTo": "channel-chip",
+      "description": "Platform filter in the cue rail: an unlit lamp when off, a lit gel when on.",
+      "html": "<div class=\"ds-booth\"><label><input class=\"ds-check\" type=\"checkbox\" checked><span class=\"ds-chip\" style=\"--gel:#25D366\"><span class=\"ds-lamp\"></span>WhatsApp</span></label><label><input class=\"ds-check\" type=\"checkbox\"><span class=\"ds-chip\" style=\"--gel:#26A5E4\"><span class=\"ds-lamp\"></span>Telegram</span></label></div>",
+      "css": ":host{--booth-black:#07070B;--booth-line:rgba(185,182,214,.14);--rose:#FF6AAE;--ink-night:#F4F2FF;--ink-night-soft:#B9B6D6;--ink-night-faint:#7D7AA3;--font-text:\"Albert Sans\",system-ui,sans-serif;--ease-out:cubic-bezier(.16,1,.3,1);} .ds-booth{background:var(--booth-black);padding:2rem;display:flex;gap:.5rem;font-family:var(--font-text);} .ds-check{position:absolute;opacity:0;} .ds-chip{display:inline-flex;align-items:center;gap:.45rem;padding:.45rem .85rem;border:1px solid var(--booth-line);color:var(--ink-night-faint);font-size:.875rem;font-weight:500;cursor:pointer;transition:border-color .25s var(--ease-out),color .25s var(--ease-out),background-color .25s var(--ease-out);} .ds-chip:hover{color:var(--ink-night-soft);} .ds-lamp{width:.5rem;height:.5rem;border-radius:50%;border:1px solid var(--gel);transition:background-color .25s var(--ease-out),box-shadow .25s var(--ease-out);} .ds-check:checked+.ds-chip{border-color:color-mix(in srgb,var(--gel) 60%,transparent);background:color-mix(in srgb,var(--gel) 12%,transparent);color:var(--ink-night);} .ds-check:checked+.ds-chip .ds-lamp{background:var(--gel);box-shadow:0 0 10px 1px var(--gel);} .ds-check:focus-visible+.ds-chip{outline:2px solid var(--rose);outline-offset:2px;}"
+    },
+    {
+      "name": "Booth Nav",
+      "kind": "nav",
+      "description": "Admin top bar: stencil wordmark, nav links, rose underline on the active link.",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-brand\">Ajaklah</span><a class=\"ds-link is-active\" href=\"#\">Dashboard</a><a class=\"ds-link\" href=\"#\">Platforms</a></nav>",
+      "css": ":host{--cyc-black:#050508;--booth-line:rgba(185,182,214,.14);--rose:#FF6AAE;--ink-night:#F4F2FF;--ink-night-soft:#B9B6D6;--font-display:\"Big Shoulders Stencil\",\"Arial Narrow\",sans-serif;--font-text:\"Albert Sans\",system-ui,sans-serif;} .ds-nav{display:flex;align-items:center;gap:1.5rem;padding:.75rem 1.5rem;background:var(--cyc-black);border-bottom:1px solid var(--booth-line);font-family:var(--font-text);} .ds-brand{margin-right:1rem;color:var(--ink-night);font-family:var(--font-display);font-size:1.5rem;font-weight:800;letter-spacing:.08em;line-height:.95;text-transform:uppercase;} .ds-link{padding:.5rem 0;color:var(--ink-night-soft);font-weight:500;text-decoration:none;transition:color .2s;} .ds-link:hover,.ds-link.is-active{color:var(--ink-night);} .ds-link.is-active{box-shadow:inset 0 -2px 0 var(--rose);} .ds-link:focus-visible{outline:2px solid var(--rose);outline-offset:3px;}"
+    },
+    {
+      "name": "Fader",
+      "kind": "custom",
+      "description": "A platform channel on the fader bank: level is its share of clicks; click to solo.",
+      "html": "<div class=\"ds-booth\"><button class=\"ds-fader\" type=\"button\" style=\"--gel:#25D366;--level:.62\"><span class=\"ds-fv\">62%</span><span class=\"ds-track\"><span class=\"ds-fill\"></span><span class=\"ds-cap\"></span></span><span class=\"ds-fn\">WhatsApp</span></button><button class=\"ds-fader\" type=\"button\" style=\"--gel:#1877F2;--level:.28\"><span class=\"ds-fv\">28%</span><span class=\"ds-track\"><span class=\"ds-fill\"></span><span class=\"ds-cap\"></span></span><span class=\"ds-fn\">Facebook</span></button></div>",
+      "css": ":host{--booth-black:#07070B;--booth-line:rgba(185,182,214,.14);--rose:#FF6AAE;--ink-night:#F4F2FF;--ink-night-soft:#B9B6D6;--font-display:\"Big Shoulders Stencil\",\"Arial Narrow\",sans-serif;--font-text:\"Albert Sans\",system-ui,sans-serif;--ease-out:cubic-bezier(.16,1,.3,1);} .ds-booth{background:var(--booth-black);padding:2rem;display:flex;gap:.5rem;font-family:var(--font-text);} .ds-fader{--track-h:8rem;flex:0 0 5rem;display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:.5rem .25rem .6rem;background:rgba(5,5,8,.45);border:1px solid transparent;color:var(--ink-night);font:inherit;cursor:pointer;transition:border-color .25s var(--ease-out),background-color .25s var(--ease-out);} .ds-fader:hover{border-color:var(--booth-line);background:rgba(5,5,8,.7);} .ds-fader:focus-visible{outline:2px solid var(--rose);outline-offset:3px;} .ds-fv{font-family:var(--font-display);font-size:1.5rem;font-weight:800;line-height:1;} .ds-track{position:relative;width:6px;height:var(--track-h);background:rgba(185,182,214,.12);} .ds-fill{position:absolute;inset:0;background:linear-gradient(0deg,color-mix(in srgb,var(--gel) 35%,transparent),var(--gel));box-shadow:0 0 14px color-mix(in srgb,var(--gel) 70%,transparent);transform:scaleY(var(--level));transform-origin:bottom;transition:transform .5s var(--ease-out);} .ds-cap{position:absolute;left:50%;bottom:0;width:2.25rem;height:.75rem;transform:translate(-50%,calc(50% - var(--level) * var(--track-h)));background:#1A1B33;border:1px solid rgba(185,182,214,.35);box-shadow:inset 0 -2px 0 var(--gel),0 6px 12px -4px rgba(0,0,0,.8);transition:transform .5s var(--ease-out);} .ds-fn{color:var(--ink-night-soft);font-size:.6875rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Cyclorama Dawn",
+    "overview": "Every surface is a seamless stage wall lit through one day: blackout at the top, a low cobalt horizon, rose gathering above it, then dawn rose into white day. Content is placed by light, not by boxes. The public site (Read mode) lets a story stand lit on the horizon, runs the rest of the day as a cue sheet, and does its reading on a white-day sheet; the admin (Operate mode) is the lighting booth for the same stage, where filters are a cue rail and platforms are channels on a fader bank.\n\nGrouping comes from horizon bands and hairline rules. Platform brand colours are lighting gels, never decoration: they colour share controls, chips, faders and chart series, and nothing else. Silhouetted set pieces (authored SVGs cropped to their ink) stand with their feet exactly on the horizon line, reflected blurred in the stage floor below. Motion is cue-like: a share fires a GO cue (gel bloom, counter steps), and the article's fixed stage brightens from night to day as the reader scrolls. Reduced motion parks every state.\n\nThe system refuses the cream broadsheet front page, the card grid, and the KPI-tile analytics template.",
+    "keyCharacteristics": [
+      "Vertical night-to-day gradient as the organising ground; cobalt horizon low, rose glow above it.",
+      "Stencil caps (Big Shoulders Stencil 800) for headlines, panel labels and counts; Albert Sans for everything read or operated.",
+      "Square stage corners on the public site; a 2px booth radius in the admin.",
+      "Hairlines, not boxes, on the stage; matte hairlined panels only in the booth.",
+      "Platform colours appear only as gels, lifted to a pale stage tint when they would vanish on a dark ground."
+    ],
+    "rules": [
+      {
+        "name": "The Gel Rule",
+        "body": "Platform brand colour is light on a control, never fill on a surface: an icon tint, a 4px foot strip, a hover border and a coloured under-glow. It never becomes a background block or body text.",
+        "section": "colors"
+      },
+      {
+        "name": "The Lift-to-Stage Rule",
+        "body": "Any gel whose relative luminance is below 0.03 (X at #000000) is lifted to #E9E7F5 on dark grounds via `on_stage()` / `stage_color`. On white day the true brand colour is used. Never ship a near-black gel onto a night stage.",
+        "section": "colors"
+      },
+      {
+        "name": "The Dawn Ramp Rule",
+        "body": "Big grounds travel black, night, cobalt, violet (#6F4BD9 / #7B54E0), rose-pink (#FF8CC0), dawn, day wash, white, in that order. Never reverse it and never skip cobalt straight to white.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "All numerals are tabular (`font-variant-numeric: tabular-nums` on body). Counts, times and data never jitter when they change.",
+        "section": "typography"
+      },
+      {
+        "name": "The Stencil-Is-Light Rule",
+        "body": "Stencil caps are for what is lit: headlines, panel labels and counts. Running text, summaries, form values and table cells are always Albert Sans.",
+        "section": "typography"
+      },
+      {
+        "name": "The Feet-on-the-Line Rule",
+        "body": "Set pieces are cropped to their ink and positioned with `bottom` equal to the floor height, so they stand exactly on the horizon line. Never pad a silhouette or float it above the line.",
+        "section": "layout"
+      },
+      {
+        "name": "The One Share Bar Rule",
+        "body": "On phones, the fixed share dock parks itself whenever the story's own share bar is on screen. Only one bar is ever visible.",
+        "section": "layout"
+      },
+      {
+        "name": "The Lit-From-Below Rule",
+        "body": "Every shadow is soft, negative-spread and offset downward. Cued glows are coloured by their light (cobalt, rose or the gel); the few resting lifts are deep cobalt or black. No hard offset shadows, no mid-grey drop shadows.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** organise every large ground as the dawn ramp: black at the top, cobalt horizon low, rose above it, ending in white day where reading happens.",
+      "**Do** pass platform colours through `on_stage()` / `stage_color` before using them on a dark ground.",
+      "**Do** group with horizon bands and 1px hairlines (line-night, line-day, booth-line) on the stage.",
+      "**Do** set counts, totals and fader values in stencil numerals with tabular figures.",
+      "**Do** stand set pieces on the horizon line, cropped to their ink, with the rose drop-shadow halo and a blurred reflection in the floor.",
+      "**Do** make cued states read as light: a coloured downward glow, a rising strip, a lit lamp.",
+      "**Do** park every animation under `prefers-reduced-motion`."
+    ],
+    "donts": [
+      "**Don't** box content on the public stage; no card grids, no rounded panels.",
+      "**Don't** use platform brand colour as a surface fill or as text colour.",
+      "**Don't** use hard offset shadows or mid-grey drop shadows; hover and focus glows take the colour of their light.",
+      "**Don't** add corner radius to site components, or more than 3px in the booth (lamps excepted).",
+      "**Don't** set running text, form values or table data in the stencil face.",
+      "**Don't** put a near-black gel on a night ground unlifted."
+    ]
+  }
+}

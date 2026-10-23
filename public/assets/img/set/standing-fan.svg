@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 280" fill="#050508">
+  <!-- Authored silhouette: a household standing fan; the grille is open so the horizon light shows through. -->
+  <g fill="none" stroke="#050508">
+    <circle cx="65" cy="62" r="56" stroke-width="6"/>
+    <circle cx="65" cy="62" r="38" stroke-width="3"/>
+    <path stroke-width="2.4" d="M65 6v112M9 62h112M25.4 22.4l79.2 79.2M104.6 22.4l-79.2 79.2"/>
+  </g>
+  <path d="M65 62c-6-16-4-34 6-40 8 6 6 26-6 40z"/>
+  <path d="M65 62c16-4 32 4 34 16-10 6-26-2-34-16z"/>
+  <path d="M65 62c-10 13-28 18-38 10 2-12 22-16 38-10z"/>
+  <circle cx="65" cy="62" r="11"/>
+  <path d="M58 116h14l2 16H56z"/>
+  <rect x="61" y="130" width="8" height="128"/>
+  <path d="M60 196h10v10H60z"/>
+  <path d="M14 280c4-14 26-22 51-22s47 8 51 22z"/>
+</svg>

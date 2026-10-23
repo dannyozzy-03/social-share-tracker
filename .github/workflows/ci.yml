@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.1', '8.2', '8.3', '8.4']
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports: ['3306:3306']
+        options: --health-cmd="mysqladmin ping -proot" --health-interval=5s --health-timeout=5s --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_mysql, mbstring
+          coverage: none
+
+      - name: Lint PHP
+        run: find . -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Unit tests
+        run: php tests/run.php
+
+      - name: Install against MySQL 8 (schema, seed, admin, demo data)
+        run: php bin/install.php --db-pass=root --admin-pass=ci-password-123 --demo
+
+      - name: Smoke test
+        run: |
+          php -S 127.0.0.1:8000 -t public > /dev/null 2>&1 &
+          sleep 1
+          curl -sf http://127.0.0.1:8000/ | grep -q 'data-platform="whatsapp"'
+          curl -sf -X POST http://127.0.0.1:8000/api/track.php \
+            -H 'Content-Type: application/json' \
+            -d '{"platform":"facebook","url":"http://localhost:8000/"}' | grep -q '"recorded":true'
