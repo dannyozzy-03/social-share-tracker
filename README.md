@@ -169,7 +169,7 @@ php tests/run.php
 | `Could not connect to MySQL` | MySQL isn't running, or the user/password is wrong. Start MySQL (XAMPP Control Panel, `brew services start mysql` or `sudo systemctl start mysql`) and check `--db-user` / `--db-pass`. |
 | I fixed my password but the setup still uses the old one | The first run already saved `config/config.php`. Delete that file and run step 4 again. |
 | `could not find driver` | PHP's MySQL extension is missing. Linux: `sudo apt install php-mysql`. XAMPP has it already. |
-| Port 8000 is already in use | Use another port in both commands: add `--app-url=http://localhost:8080` in step 4 (delete `config/config.php` first if it exists), then run `php -S localhost:8080 -t public`. |
+| Port 8000 is already in use | Choose any available port, for example `php -S localhost:8080 -t public`, then open `http://localhost:8080`. No config change is needed. |
 | Page loads with no styling or charts | The browser needs internet to load Bootstrap and Chart.js. |
 | Want to start over with clean data | `php bin/install.php --fresh --admin-pass=Admin@12345 --demo` (this deletes all data and rebuilds it) |
 | Forgot the admin password | `php bin/create-admin.php admin "NewPassword123"` |

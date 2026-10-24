@@ -11,6 +11,7 @@ use App\Security\Csrf;
 $invalid ??= [];
 $isInvalid = static fn (string $field): bool => in_array($field, $invalid, true);
 $focus = $username !== '' ? 'password' : 'username';
+$sessionEvent = isset($_GET['signed_out']) || isset($_GET['expired']) ? 'signed-out' : '';
 ?>
 <!doctype html>
 <html lang="en" data-theme="light" data-bs-theme="light">
@@ -30,7 +31,7 @@ $focus = $username !== '' ? 'password' : 'username';
     {"prerender": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"selector_matches": "[target=_blank], [data-platform], [download], #export-link, [href*='logout'], [href*='export']"}}]}, "eagerness": "moderate"}]}
     </script>
 </head>
-<body class="admin admin-login">
+<body class="admin admin-login" data-admin-session-event="<?= e($sessionEvent) ?>">
 <div class="login">
 <aside class="login-stage">
     <a class="login-stage__brand wordmark" href="<?= e(url()) ?>"><?= wordmark() ?></a>
@@ -88,5 +89,6 @@ $focus = $username !== '' ? 'password' : 'username';
 </main>
 </div>
 <script src="<?= e(asset('js/login.js')) ?>" defer></script>
+<script src="<?= e(asset('js/admin-session.js')) ?>" defer></script>
 </body>
 </html>

@@ -14,11 +14,12 @@ use App\View;
 
 $lead = $articles[0];
 $leadUrl = ArticleRepository::url($lead);
+$homeClass = $section === null ? 'home' : 'home home--section';
 $date = static fn (string $d, string $format): string => (new DateTimeImmutable($d))->format($format);
 $shares = static fn (int $n): string => number_format($n) . ($n === 1 ? ' share' : ' shares');
 
 ?>
-<div class="container home">
+<div class="container <?= e($homeClass) ?>">
     <?php if ($section === null): ?>
         <h1 class="visually-hidden"><?= e(config('app.site_name')) ?>: latest stories</h1>
     <?php else: ?>
@@ -44,22 +45,28 @@ $shares = static fn (int $n): string => number_format($n) . ($n === 1 ? ' share'
                     </p>
                 </div>
             </article>
+
+            <?php if (count($articles) > 1): ?>
+                <section class="latest" aria-labelledby="latest-title">
+                    <div class="block-head">
+                        <h2 class="block-title" id="latest-title"><?= $section === null ? 'Latest stories' : 'More in ' . e($section) ?></h2>
+                    </div>
+                    <div class="card-grid">
+                        <?php foreach (array_slice($articles, 1) as $article): ?>
+                            <?= View::fetch('site/card', ['article' => $article, 'shares' => $shareCounts[ArticleRepository::url($article)] ?? 0]) ?>
+                        <?php endforeach; ?>
+                    </div>
+                </section>
+            <?php endif; ?>
         </section>
 
-        <?= View::fetch('site/most-shared', ['articles' => $allArticles, 'shareCounts' => $shareCounts]) ?>
+        <?php if ($section === null): ?>
+            <?= View::fetch('site/most-shared', ['articles' => $allArticles, 'shareCounts' => $shareCounts]) ?>
+        <?php endif; ?>
     </div>
 
-    <?php if (count($articles) > 1): ?>
-        <section class="latest" aria-labelledby="latest-title">
-            <div class="block-head">
-                <h2 class="block-title" id="latest-title"><?= $section === null ? 'Latest stories' : 'More in ' . e($section) ?></h2>
-            </div>
-            <div class="card-grid">
-                <?php foreach (array_slice($articles, 1) as $article): ?>
-                    <?= View::fetch('site/card', ['article' => $article, 'shares' => $shareCounts[ArticleRepository::url($article)] ?? 0]) ?>
-                <?php endforeach; ?>
-            </div>
-        </section>
+    <?php if ($section !== null): ?>
+        <?= View::fetch('site/most-shared', ['articles' => $allArticles, 'shareCounts' => $shareCounts, 'variant' => 'section']) ?>
     <?php endif; ?>
 
     <section class="pass" aria-labelledby="pass-it-on">

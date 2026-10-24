@@ -8,6 +8,7 @@ return [
         // Front-end publication name.
         'site_name' => 'Ajaklah News',
         // Public URL of public/, no trailing slash; empty = auto-detect.
+        // Localhost URLs use the port serving the current request.
         // e.g. 'http://localhost:8000' (php -S) or 'http://localhost/social-share-tracker' (XAMPP).
         'url' => 'http://localhost:8000',
         'timezone' => 'Asia/Kuala_Lumpur',

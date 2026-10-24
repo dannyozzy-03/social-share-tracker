@@ -13,6 +13,7 @@ $articleUrl = ArticleRepository::url($article);
     <div class="card-story__body">
         <span class="chip"><?= e($article['category']) ?></span>
         <h3 class="card-story__title"><a class="stretched-link" href="<?= e($articleUrl) ?>"><?= e($article['title']) ?></a></h3>
+        <p class="card-story__summary"><?= e($article['summary']) ?></p>
         <p class="meta">
             <time datetime="<?= e($article['published']) ?>"><?= e((new DateTimeImmutable($article['published']))->format('j M Y')) ?></time>
             <?php if ($shares !== null): ?>

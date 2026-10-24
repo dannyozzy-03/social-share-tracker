@@ -34,7 +34,7 @@ $nav = [
     {"prerender": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"selector_matches": "[target=_blank], [data-platform], [download], #export-link, [href*='logout'], [href*='export']"}}]}, "eagerness": "moderate"}]}
     </script>
 </head>
-<body class="admin">
+<body class="admin" data-admin-session-event="signed-in">
 <a class="visually-hidden-focusable skip-link" href="#main">Skip to content</a>
 <nav class="navbar navbar-expand-md booth-nav" aria-label="Admin">
     <div class="container-xxl">
@@ -86,8 +86,36 @@ $nav = [
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<nav class="admin-mobile-nav d-md-none" aria-label="Admin mobile navigation">
+    <a class="admin-mobile-nav__link<?= $active === 'dashboard' ? ' is-active' : '' ?>" href="<?= e(url('admin/')) ?>"<?= $active === 'dashboard' ? ' aria-current="page"' : '' ?>>
+        <i class="bi bi-bar-chart-line" aria-hidden="true"></i>
+        <span>Dashboard</span>
+    </a>
+    <a class="admin-mobile-nav__link<?= $active === 'platforms' ? ' is-active' : '' ?>" href="<?= e(url('admin/platforms.php')) ?>"<?= $active === 'platforms' ? ' aria-current="page"' : '' ?>>
+        <i class="bi bi-sliders" aria-hidden="true"></i>
+        <span>Platforms</span>
+    </a>
+    <a class="admin-mobile-nav__link" href="<?= e(url()) ?>" target="_blank" rel="noopener">
+        <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
+        <span>Website</span>
+    </a>
+    <button class="admin-mobile-nav__link admin-mobile-nav__theme theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Dark mode" title="Switch to dark mode">
+        <i class="bi bi-sun theme-toggle__light" aria-hidden="true"></i>
+        <i class="bi bi-moon-stars theme-toggle__dark" aria-hidden="true"></i>
+        <span>Theme</span>
+    </button>
+    <form class="admin-mobile-nav__logout" method="post" action="<?= e(url('admin/logout.php')) ?>">
+        <?= Csrf::field() ?>
+        <button class="admin-mobile-nav__link" type="submit">
+            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+            <span>Sign out</span>
+        </button>
+    </form>
+</nav>
+
 <?php foreach ($scripts as $script): ?>
     <script src="<?= e($script) ?>"></script>
 <?php endforeach; ?>
+<script src="<?= e(asset('js/admin-session.js')) ?>" defer></script>
 </body>
 </html>

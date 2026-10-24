@@ -72,6 +72,24 @@ final class Auth
         return $user;
     }
 
+    public static function isAuthenticated(): bool
+    {
+        self::startSession();
+        $user = $_SESSION[self::SESSION_KEY] ?? null;
+        if (!is_array($user)) {
+            return false;
+        }
+
+        $idleSeconds = (int) config('admin.session_idle_minutes', 30) * 60;
+        if (time() - (int) ($user['last_activity'] ?? 0) > $idleSeconds) {
+            self::logout();
+
+            return false;
+        }
+
+        return true;
+    }
+
     /** @return array{id: int, username: string, last_activity: int} */
     public static function requireLogin(bool $json = false): array
     {

@@ -109,5 +109,5 @@ if (isset($options['demo'])) {
     echo '[ok] Generated ' . number_format($seeder->run(90)) . " demo share clicks for the last 90 days\n";
 }
 
-echo "\nDone. Start the site with:\n  php -S localhost:" . (parse_url(app_url(), PHP_URL_PORT) ?? 8000) . " -t public\n"
-    . "Then open " . app_url() . " (website) and " . app_url('admin/') . " (admin).\n";
+echo "\nDone. Start the site with:\n  php -S localhost:8000 -t public\n"
+    . "You can replace 8000 with any available port, then open http://localhost:<port>/.\n";

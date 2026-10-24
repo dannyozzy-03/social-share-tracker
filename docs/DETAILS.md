@@ -43,7 +43,7 @@ php -S localhost:8000 -t public
 | Website | http://localhost:8000 | none |
 | Admin | http://localhost:8000/admin/ | `admin` / `Admin@12345` |
 
-Port 8000 busy? Pick another port and pass it to the installer too: `--app-url=http://localhost:8080`, then `php -S localhost:8080 -t public`.
+Port 8000 busy? Pick any available port, for example `php -S localhost:8080 -t public`, and open `http://localhost:8080`. Localhost links automatically use the port serving the current request; no installer or config change is needed.
 
 The browser needs internet access, because Bootstrap, Bootstrap Icons and Chart.js load from a CDN.
 
@@ -197,7 +197,7 @@ tests/       unit tests
 - **Link previews need a public URL.** Facebook, X, WhatsApp and Telegram read the page's Open Graph tags from the internet, so previews only appear once the site is online (not on `localhost`).
 - **Live updates use polling.** The site checks every 10 seconds, and only while the tab is visible. It doesn't use WebSockets, which would need a long-running server; PHP's built-in server handles one request at a time.
 - **The articles are demo content** (`src/Content/ArticleRepository.php`). In production they would come from the CMS.
-- **The design:** the front page follows a Malaysian news-portal layout: a section nav, an editor's pick, a live "Most shared" ranking and a story grid. The admin is a clean analytics dashboard. Share buttons carry each platform's brand colour. The fonts (Poppins and Albert Sans) are self-hosted under the SIL Open Font License.
+- **The design:** the front page follows a Malaysian news-portal layout: a section nav, an editor's pick, a live "Trending (Most Shared)" ranking of all stories and a story grid. The admin is a clean analytics dashboard. Share buttons carry each platform's brand colour. The fonts (Poppins and Albert Sans) are self-hosted under the SIL Open Font License.
 
 ### Photo credits
 

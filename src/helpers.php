@@ -66,6 +66,17 @@ function app_url(string $path = ''): string
             $host = 'localhost';
         }
         $root = (is_https() ? 'https' : 'http') . '://' . $host . base_path();
+    } else {
+        $parts = parse_url($root);
+        $configuredHost = strtolower((string) ($parts['host'] ?? ''));
+        $requestHost = (string) ($_SERVER['HTTP_HOST'] ?? '');
+        if (in_array($configuredHost, ['localhost', '127.0.0.1', '::1'], true)
+            && preg_match('/^(localhost|127\.0\.0\.1|\[::1\])(?::([0-9]{1,5}))?$/iD', $requestHost, $matches)
+            && strtolower(trim($matches[1], '[]')) === $configuredHost
+            && (!isset($matches[2]) || ((int) $matches[2] >= 1 && (int) $matches[2] <= 65535))) {
+            $scheme = (string) ($parts['scheme'] ?? (is_https() ? 'https' : 'http'));
+            $root = $scheme . '://' . $requestHost . (string) ($parts['path'] ?? '');
+        }
     }
 
     return $root . '/' . ltrim($path, '/');

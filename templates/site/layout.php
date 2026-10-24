@@ -7,6 +7,7 @@
  */
 
 use App\Content\ArticleRepository;
+use App\View;
 
 $siteName = (string) config('app.site_name');
 $pageTitle = str_starts_with($meta['title'], $siteName) ? $meta['title'] : $meta['title'] . ' | ' . $siteName;
@@ -63,7 +64,9 @@ $isHome = ($_SERVER['SCRIPT_NAME'] ?? '') !== '' && str_ends_with((string) $_SER
     {"prerender": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"selector_matches": "[target=_blank], [data-platform], [download], #export-link, [href*='logout'], [href*='export']"}}]}, "eagerness": "moderate"}]}
     </script>
 </head>
-<body class="site <?= e($bodyClass) ?>" data-counts-endpoint="<?= e(url('api/counts.php')) ?>">
+<body class="site <?= e($bodyClass) ?>"
+      data-counts-endpoint="<?= e(url('api/counts.php')) ?>"
+      data-admin-session-endpoint="<?= e(url('admin/session-status.php')) ?>">
 <a class="visually-hidden-focusable skip-link" href="#main">Skip to content</a>
 
 <div class="topbar">
@@ -72,7 +75,11 @@ $isHome = ($_SERVER['SCRIPT_NAME'] ?? '') !== '' && str_ends_with((string) $_SER
             <span class="d-none d-sm-inline"><?= e(date('l, j F Y')) ?></span><span class="d-sm-none"><?= e(date('j M Y')) ?></span>
         </time>
         <div class="topbar__tools">
-            <a class="topbar__signin" href="<?= e(url('admin/')) ?>"><i class="bi bi-person-lock" aria-hidden="true"></i> <span class="d-none d-sm-inline">Admin sign in</span><span class="d-sm-none">Sign in</span></a>
+            <a class="topbar__signin" href="<?= e(url('admin/')) ?>" data-admin-session-link aria-label="Admin sign in" aria-live="polite">
+                <i class="bi bi-person-lock" aria-hidden="true" data-admin-session-icon></i>
+                <span class="d-none d-sm-inline" data-admin-session-guest>Admin sign in</span><span class="d-sm-none" data-admin-session-guest>Sign in</span>
+                <span class="d-none d-sm-inline" data-admin-session-user hidden>Admin dashboard</span><span class="d-sm-none" data-admin-session-user hidden>Dashboard</span>
+            </a>
             <button class="theme-toggle theme-toggle--bar" type="button" data-theme-toggle aria-pressed="false" aria-label="Dark mode" title="Switch to dark mode">
                 <i class="bi bi-sun theme-toggle__light" aria-hidden="true"></i><i class="bi bi-moon-stars theme-toggle__dark" aria-hidden="true"></i>
             </button>
@@ -100,6 +107,11 @@ $isHome = ($_SERVER['SCRIPT_NAME'] ?? '') !== '' && str_ends_with((string) $_SER
     </div>
 </nav>
 
+<?= View::fetch('site/story-ticker', [
+    'articles' => ArticleRepository::all(),
+    'currentSlug' => is_string($_GET['slug'] ?? null) ? $_GET['slug'] : null,
+]) ?>
+
 <main id="main">
     <?= $content ?>
 </main>
@@ -115,13 +127,48 @@ $isHome = ($_SERVER['SCRIPT_NAME'] ?? '') !== '' && str_ends_with((string) $_SER
                 <?php foreach (ArticleRepository::sections() as $name): ?>
                     <li><a href="<?= e(ArticleRepository::sectionUrl($name)) ?>"><?= e($name) ?></a></li>
                 <?php endforeach; ?>
-                <li><a href="<?= e(url('admin/')) ?>">Admin sign in</a></li>
+                <li><a href="<?= e(url('admin/')) ?>" data-admin-session-link aria-label="Admin sign in" aria-live="polite"><span data-admin-session-guest>Admin sign in</span><span data-admin-session-user hidden>Admin dashboard</span></a></li>
             </ul>
         </div>
         <p class="site-footer__note">&copy; <?= e(date('Y')) ?> <?= e($siteName) ?>. A demo publication built for a web developer practical test. Articles are placeholder content and share counts include generated demo data.</p>
     </div>
 </footer>
 
+<nav class="mobile-nav d-md-none" aria-label="Mobile navigation">
+    <a class="mobile-nav__link<?= $section === null && $isHome ? ' is-active' : '' ?>" href="<?= e(url()) ?>"<?= $section === null && $isHome ? ' aria-current="page"' : '' ?>>
+        <i class="bi bi-house-door-fill" aria-hidden="true"></i>
+        <span>Home</span>
+    </a>
+    <?php foreach (ArticleRepository::sections() as $name): ?>
+        <?php
+        $sectionIcon = match ($name) {
+            'Food' => 'bi-cup-hot-fill',
+            'Lifestyle' => 'bi-stars',
+            'Money' => 'bi-cash-coin',
+            'Travel' => 'bi-airplane-fill',
+            default => 'bi-grid-fill',
+        };
+        $sectionIsCurrent = $section === $name;
+        ?>
+        <a class="mobile-nav__link<?= $sectionIsCurrent ? ' is-active' : '' ?>" href="<?= e(ArticleRepository::sectionUrl($name)) ?>"<?= $sectionIsCurrent ? ' aria-current="page"' : '' ?>>
+            <i class="bi <?= e($sectionIcon) ?>" aria-hidden="true"></i>
+            <span><?= e($name) ?></span>
+        </a>
+    <?php endforeach; ?>
+    <a class="mobile-nav__link mobile-nav__account" href="<?= e(url('admin/')) ?>" data-admin-session-link aria-label="Admin sign in" aria-live="polite">
+        <i class="bi bi-person-lock" aria-hidden="true" data-admin-session-icon></i>
+        <span data-admin-session-guest>Sign in</span>
+        <span data-admin-session-user hidden>Dashboard</span>
+    </a>
+    <button class="mobile-nav__link mobile-nav__theme" type="button" data-theme-toggle aria-pressed="false" aria-label="Dark mode" title="Switch to dark mode">
+        <i class="bi bi-sun theme-toggle__light" aria-hidden="true"></i>
+        <i class="bi bi-moon-stars theme-toggle__dark" aria-hidden="true"></i>
+        <span>Theme</span>
+    </button>
+</nav>
+
 <script src="<?= e(asset('js/share.js')) ?>" defer></script>
+<script src="<?= e(asset('js/admin-session.js')) ?>" defer></script>
+<script src="<?= e(asset('js/story-ticker.js')) ?>" defer></script>
 </body>
 </html>

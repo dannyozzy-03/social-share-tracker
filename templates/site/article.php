@@ -22,27 +22,14 @@ $bar = static fn (string $label, string $variant): string => View::fetch('site/s
     'variant' => $variant,
 ]);
 $date = static fn (string $d, string $format): string => (new DateTimeImmutable($d))->format($format);
+$relatedArticles = array_slice(array_values(array_filter(
+    $all,
+    static fn (array $item): bool => $item['category'] === $article['category'] && $item['slug'] !== $article['slug'],
+)), 0, 2);
 
 // The opening word is set in bold capitals, as news sites do for the lead-in.
 [$leadIn, $firstRest] = array_pad(explode(' ', $article['body'][0], 2), 2, '');
 ?>
-<nav class="strip" aria-label="Latest stories">
-    <div class="container">
-        <ol class="strip__list">
-            <?php foreach ($all as $item): ?>
-                <?php $current = $item['slug'] === $article['slug']; ?>
-                <li class="strip__item<?= $current ? ' is-current' : '' ?>">
-                    <div class="strip__text">
-                        <span class="chip"><?= e($item['category']) ?></span>
-                        <a class="strip__title stretched-link" href="<?= e(ArticleRepository::url($item)) ?>"<?= $current ? ' aria-current="page"' : '' ?>><?= e($item['title']) ?></a>
-                    </div>
-                    <img class="strip__thumb" src="<?= e($item['image_src']) ?>" alt="" width="1200" height="630" loading="lazy">
-                </li>
-            <?php endforeach; ?>
-        </ol>
-    </div>
-</nav>
-
 <div class="container story-layout">
     <article class="story">
         <header class="story__head">
@@ -61,15 +48,30 @@ $date = static fn (string $d, string $format): string => (new DateTimeImmutable(
         <figure class="story__figure">
             <img data-cover="<?= e($article['slug']) ?>" src="<?= e($article['image_src']) ?>" alt="" width="1200" height="630" fetchpriority="high">
             <?php if (!empty($article['caption'])): ?>
-                <figcaption><i class="bi bi-image" aria-hidden="true"></i> <?= e($article['caption']) ?></figcaption>
+                <figcaption>
+                    <i class="bi bi-image" aria-hidden="true"></i>
+                    <?= e($article['caption']) ?>
+                    <?php if (!empty($article['photo_credit'])): ?>
+                        <span>Photo by <a href="<?= e($article['photo_credit']['source']) ?>" target="_blank" rel="noopener noreferrer"><?= e($article['photo_credit']['author']) ?></a> · <a href="<?= e($article['photo_credit']['license_url']) ?>" target="_blank" rel="license noopener noreferrer"><?= e($article['photo_credit']['license']) ?></a></span>
+                    <?php elseif (!empty($article['credit'])): ?>
+                        <span><?= e($article['credit']) ?></span>
+                    <?php endif; ?>
+                </figcaption>
             <?php endif; ?>
         </figure>
 
         <div class="story__body">
             <p class="story__standfirst"><?= e($article['summary']) ?></p>
             <p><strong class="story__lead-in"><?= e($leadIn) ?></strong> <?= e($firstRest) ?></p>
-            <?php foreach (array_slice($article['body'], 1) as $paragraph): ?>
+            <?php foreach (array_slice($article['body'], 1) as $index => $paragraph): ?>
                 <p><?= e($paragraph) ?></p>
+                <?php if (in_array($index, [0, 3], true) && isset($relatedArticles[$index === 0 ? 0 : 1])): ?>
+                    <?php $related = $relatedArticles[$index === 0 ? 0 : 1]; ?>
+                    <aside class="story__related">
+                        <strong>Related story:</strong>
+                        <a href="<?= e(ArticleRepository::url($related)) ?>"><?= e($related['title']) ?></a>
+                    </aside>
+                <?php endif; ?>
             <?php endforeach; ?>
         </div>
 
@@ -102,7 +104,7 @@ $date = static fn (string $d, string $format): string => (new DateTimeImmutable(
     </article>
 
     <div class="story-layout__aside">
-        <?= View::fetch('site/most-shared', ['articles' => $all, 'shareCounts' => $shareCounts]) ?>
+        <?= View::fetch('site/most-shared', ['articles' => $all, 'shareCounts' => $shareCounts, 'variant' => 'section']) ?>
     </div>
 </div>
 

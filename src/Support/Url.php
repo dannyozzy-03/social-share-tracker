@@ -49,6 +49,24 @@ final class Url
             . $query;
     }
 
+    /** Local development ports identify the same page for share-count display. */
+    public static function normalizeForCounts(string $url): ?string
+    {
+        $normalized = self::normalize($url);
+        if ($normalized === null) {
+            return null;
+        }
+
+        $parts = parse_url($normalized);
+        $host = strtolower((string) ($parts['host'] ?? ''));
+        if (!in_array($host, ['localhost', '127.0.0.1', '[::1]'], true)) {
+            return $normalized;
+        }
+
+        return $parts['scheme'] . '://localhost' . ($parts['path'] ?? '/')
+            . (isset($parts['query']) ? '?' . $parts['query'] : '');
+    }
+
     private static function isTrackingParam(string $key): bool
     {
         return str_starts_with(strtolower($key), 'utm_') || in_array(strtolower($key), self::TRACKING_PARAMS, true);

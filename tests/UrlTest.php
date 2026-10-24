@@ -21,6 +21,22 @@ return [
     'keeps non-default ports' => function (): void {
         check_same('http://localhost:8000/article.php?slug=x', Url::normalize('http://localhost:8000/article.php?slug=x'));
     },
+    'ignores ports and loopback aliases for local share counts' => function (): void {
+        check_same(
+            'http://localhost/article.php?slug=x',
+            Url::normalizeForCounts('http://localhost:8111/article.php?slug=x')
+        );
+        check_same(
+            Url::normalizeForCounts('http://localhost:8000/article.php?slug=x'),
+            Url::normalizeForCounts('http://127.0.0.1:8111/article.php?slug=x')
+        );
+    },
+    'preserves production hosts and ports for share counts' => function (): void {
+        check_same(
+            'https://example.com:8443/article.php?slug=x',
+            Url::normalizeForCounts('https://example.com:8443/article.php?slug=x')
+        );
+    },
     'removes tracking parameters and sorts the rest' => function (): void {
         check_same(
             'https://example.com/a?id=7&page=2',

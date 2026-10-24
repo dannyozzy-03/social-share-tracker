@@ -34,19 +34,19 @@ use App\Security\Csrf;
             <?php foreach ($platforms as $platform): ?>
                 <?php $isActive = (int) $platform['is_active'] === 1; ?>
                 <tr class="<?= $isActive ? '' : 'is-inactive' ?>">
-                    <td>
+                    <td data-label="Button">
                         <span class="gel-preview" style="--gel-day: <?= e($platform['color']) ?>; --gel-night: <?= e(on_stage($platform['color'])) ?>">
                             <i class="bi <?= e($platform['icon']) ?>" aria-hidden="true"></i> <?= e($platform['name']) ?>
                         </span>
                     </td>
-                    <td><code><?= e($platform['slug']) ?></code></td>
-                    <td class="template-cell"><code title="<?= e($platform['share_url_template']) ?>"><?= e($platform['share_url_template']) ?></code></td>
-                    <td class="text-end"><?= e($platform['sort_order']) ?></td>
-                    <td class="text-end"><?= e(number_format((int) $platform['clicks'])) ?></td>
-                    <td>
+                    <td data-label="Slug"><code><?= e($platform['slug']) ?></code></td>
+                    <td class="template-cell" data-label="Share URL template"><code title="<?= e($platform['share_url_template']) ?>"><?= e($platform['share_url_template']) ?></code></td>
+                    <td class="text-end" data-label="Order"><?= e($platform['sort_order']) ?></td>
+                    <td class="text-end" data-label="Clicks"><?= e(number_format((int) $platform['clicks'])) ?></td>
+                    <td data-label="Status">
                         <span class="state-tag <?= $isActive ? 'state-tag--on' : 'state-tag--off' ?>"><?= $isActive ? 'Shown' : 'Hidden' ?></span>
                     </td>
-                    <td class="text-end text-nowrap">
+                    <td class="text-end text-nowrap" data-label="Actions">
                         <form method="post" action="<?= e(url('admin/platforms.php')) ?>" class="d-inline">
                             <?= Csrf::field() ?>
                             <input type="hidden" name="id" value="<?= e($platform['id']) ?>">

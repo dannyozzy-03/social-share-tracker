@@ -17,7 +17,7 @@ send_security_headers();
 header('Cache-Control: no-store');
 
 $db = Database::connection();
-$platforms = (new PlatformRepository($db))->all();
+$platforms = (new PlatformRepository($db))->active();
 
 try {
     $filter = StatsFilter::fromQuery($_GET, array_map(static fn (array $p): int => (int) $p['id'], $platforms));

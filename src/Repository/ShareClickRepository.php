@@ -57,25 +57,49 @@ final class ShareClickRepository
      */
     public function countsForUrls(array $urls): array
     {
+        $keys = [];
         $hashes = [];
         foreach ($urls as $url) {
-            $hashes[$url] = PageRepository::hash(Url::normalize($url) ?? $url);
+            $normalized = Url::normalizeForCounts($url) ?? $url;
+            $keys[$url] = $normalized;
+            $hashes[] = PageRepository::hash($normalized);
         }
         if ($hashes === []) {
             return [];
         }
 
+        $localAliases = [];
+        foreach (array_values(array_unique($keys)) as $key) {
+            $host = strtolower((string) parse_url($key, PHP_URL_HOST));
+            if ($host === 'localhost') {
+                foreach (['localhost', '127.0.0.1', '[::1]'] as $alias) {
+                    $localAliases[] = parse_url($key, PHP_URL_SCHEME) . '://' . $alias . ':%';
+                }
+            }
+        }
+
+        $where = sprintf('p.url_hash IN (%s)', implode(', ', array_fill(0, count($hashes), '?')));
+        $params = $hashes;
+        if ($localAliases !== []) {
+            $where .= ' OR ' . implode(' OR ', array_fill(0, count($localAliases), 'p.url LIKE ?'));
+            array_push($params, ...$localAliases);
+        }
+
         $stmt = $this->db->prepare(sprintf(
-            'SELECT p.url_hash, COUNT(c.id) AS total
+            'SELECT p.url, COUNT(c.id) AS total
              FROM pages p
              JOIN share_clicks c ON c.page_id = p.id
-             WHERE p.url_hash IN (%s)
-             GROUP BY p.url_hash',
-            implode(', ', array_fill(0, count($hashes), '?'))
+             WHERE %s
+             GROUP BY p.url, p.url_hash',
+            $where
         ));
-        $stmt->execute(array_values($hashes));
-        $totals = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        $stmt->execute($params);
+        $totals = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $key = Url::normalizeForCounts((string) $row['url']) ?? (string) $row['url'];
+            $totals[$key] = ($totals[$key] ?? 0) + (int) $row['total'];
+        }
 
-        return array_map(static fn (string $hash): int => (int) ($totals[$hash] ?? 0), $hashes);
+        return array_map(static fn (string $key): int => $totals[$key] ?? 0, $keys);
     }
 }
