@@ -69,6 +69,55 @@
     return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
+  function rollCount(count, total) {
+    var next = formatNumber(total);
+    var previous = count.getAttribute('data-count') || count.textContent;
+    if (previous === next) {
+      return;
+    }
+
+    count.setAttribute('data-count', next);
+
+    var digits = document.createElement('span');
+    digits.className = 'share-bar__digits';
+    digits.setAttribute('aria-hidden', 'true');
+    var accessibleCount = document.createElement('span');
+    accessibleCount.className = 'visually-hidden';
+    accessibleCount.textContent = next;
+    var length = Math.max(previous.length, next.length);
+    var previousOffset = length - previous.length;
+    var nextOffset = length - next.length;
+    for (var i = 0; i < length; i++) {
+      var before = previous.charAt(i - previousOffset);
+      var after = next.charAt(i - nextOffset);
+      var slot = document.createElement('span');
+      slot.className = 'share-bar__digit';
+      if (before === after) {
+        slot.textContent = after;
+      } else {
+        slot.className += ' is-changing';
+        var oldDigit = document.createElement('span');
+        oldDigit.className = 'share-bar__digit-old';
+        oldDigit.textContent = before || '\u00a0';
+        var newDigit = document.createElement('span');
+        newDigit.className = 'share-bar__digit-new';
+        newDigit.textContent = after;
+        slot.appendChild(oldDigit);
+        slot.appendChild(newDigit);
+      }
+      digits.appendChild(slot);
+    }
+
+    while (count.firstChild) {
+      count.removeChild(count.firstChild);
+    }
+    count.appendChild(digits);
+    count.appendChild(accessibleCount);
+    (window.requestAnimationFrame || function (callback) { window.setTimeout(callback, 16); })(function () {
+      digits.className += ' is-rolling';
+    });
+  }
+
   function updateCounts(url, total) {
     var bars = document.querySelectorAll('[data-share-bar]');
     for (var i = 0; i < bars.length; i++) {
@@ -77,10 +126,7 @@
       }
       var count = bars[i].querySelector('[data-share-count]');
       var noun = bars[i].querySelector('[data-share-noun]');
-      if (count && count.textContent !== formatNumber(total)) {
-        count.textContent = formatNumber(total);
-        replayClass(count, 'is-stepping', 450);
-      }
+      if (count) { rollCount(count, total); }
       if (noun) { noun.textContent = total === 1 ? 'share' : 'shares'; }
     }
     var totals = document.querySelectorAll('[data-share-total]');

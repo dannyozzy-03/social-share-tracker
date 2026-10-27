@@ -71,6 +71,8 @@ final class ShareTracker
             $this->clicks->record($platformId, $pageId, $ipHash, Validator::cleanText($userAgent, 255), $now);
         }
 
-        return ['recorded' => !$isDuplicate, 'total' => $this->clicks->countForPage($pageId)];
+        $total = $this->clicks->countsForUrls([$url])[$url];
+
+        return ['recorded' => !$isDuplicate, 'total' => $total];
     }
 }

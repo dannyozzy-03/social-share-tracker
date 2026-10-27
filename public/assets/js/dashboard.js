@@ -133,7 +133,25 @@
   }
 
   function safeHref(url) {
-    return /^https?:\/\//i.test(url) ? url : '#';
+    try {
+      const target = new URL(url);
+      if (target.protocol !== 'http:' && target.protocol !== 'https:') {
+        return '#';
+      }
+
+      const isLoopback = (hostname) => hostname === 'localhost'
+        || hostname === '::1'
+        || hostname === '[::1]'
+        || /^127(?:\.\d{1,3}){3}$/.test(hostname);
+      if (isLoopback(target.hostname) && isLoopback(window.location.hostname)) {
+        target.host = window.location.host;
+        target.protocol = window.location.protocol;
+      }
+
+      return target.href;
+    } catch {
+      return '#';
+    }
   }
 
   function drawChart(key, canvasId, config) {
