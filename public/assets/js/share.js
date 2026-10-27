@@ -193,7 +193,7 @@
       'width=' + width + ',height=' + height + ',left=' + left + ',top=' + top + ',resizable=yes,scrollbars=yes');
   }
 
-  document.addEventListener('click', function (event) {
+  function onShareClick(event) {
     var button = closest(event.target, '[data-platform]');
     var bar = button && closest(button, '[data-share-bar]');
     if (!bar || event.defaultPrevented) {
@@ -223,6 +223,14 @@
         event.preventDefault();
       }
       // If the window was blocked, the link's default target="_blank" behaviour takes over.
+    }
+  }
+
+  document.addEventListener('click', onShareClick);
+  // Browsers fire auxclick, not click, for a middle-click "open in new tab".
+  document.addEventListener('auxclick', function (event) {
+    if (event.button === 1) {
+      onShareClick(event);
     }
   });
 

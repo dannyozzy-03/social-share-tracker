@@ -62,7 +62,7 @@ final class Auth
         }
 
         $idleSeconds = (int) config('admin.session_idle_minutes', 30) * 60;
-        if (time() - (int) $user['last_activity'] > $idleSeconds) {
+        if (time() - (int) ($user['last_activity'] ?? 0) > $idleSeconds) {
             self::logout();
 
             return null;
