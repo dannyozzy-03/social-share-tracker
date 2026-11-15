@@ -19,6 +19,7 @@ Built with **PHP + MySQL**, **Bootstrap 5** and **Chart.js**.
 6. [Try it out](#6-try-it-out)
 7. [Run the tests](#7-run-the-tests)
 8. [Problems?](#8-problems)
+9. [Working on the project (dev and main)](#9-working-on-the-project-dev-and-main)
 
 ---
 
@@ -174,6 +175,41 @@ php tests/run.php
 | Page loads with no styling or charts | The browser needs internet to load Bootstrap and Chart.js. |
 | Want to start over with clean data | `php bin/install.php --fresh --admin-pass=Admin@12345 --demo` (this deletes all data and rebuilds it) |
 | Forgot the admin password | `php bin/create-admin.php admin "NewPassword123"` |
+
+---
+
+## 9. Working on the project (dev and main)
+
+Day-to-day work happens on the **`dev`** branch. **`main`** only receives finished work, in one step. This also stops the merge conflicts you get when two computers both commit straight to `main`.
+
+**Once on each computer** (in the project folder):
+
+```bash
+git fetch
+git switch dev
+git config alias.release '!sh bin/release.sh'
+```
+
+**Every time you work:**
+
+```bash
+git switch dev
+git pull                            # first: get anything you pushed from another computer
+# ...make your changes...
+git add -A
+git commit -m "Describe the change"
+git push
+```
+
+**When dev is ready to go to main:**
+
+```bash
+git release
+```
+
+This one command pushes `dev`, brings `main` up to `dev`, pushes `main`, and leaves you back on `dev` with both branches at the same commit. It never force-pushes. If something needs a decision (uncommitted changes, or a branch that also changed on GitHub), it stops and tells you exactly what to run.
+
+In VS Code you can switch branches from the branch name in the bottom-left corner, and run `git release` in the terminal.
 
 ---
 
