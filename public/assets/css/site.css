@@ -140,6 +140,12 @@ body.site .sections__link.is-active { color: var(--brand-ink); }
 .meta__shares { color: var(--hot); font-weight: 600; }
 .meta__shares .bi { margin-right: .2rem; font-size: .75em; }
 .meta__shares.is-stepping { display: inline-block; animation: count-step .45s var(--ease-out); }
+/* The share bars now roll their digits instead, but the "N shares" labels on cards and in Trending still step. */
+@keyframes count-step {
+  0% { transform: translateY(.45em); opacity: 0; }
+  60% { transform: translateY(-.08em); opacity: 1; }
+  100% { transform: none; }
+}
 
 .block-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
 .block-title {
