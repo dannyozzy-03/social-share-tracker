@@ -17,10 +17,13 @@ send_security_headers();
 header('Cache-Control: no-store');
 
 $db = Database::connection();
-$platforms = (new PlatformRepository($db))->active();
+$repository = new PlatformRepository($db);
+$platforms = $repository->active();
 
+// Validate against every platform, like api/stats.php, so a bookmarked filter that names a
+// since-hidden platform doesn't reset the whole dashboard to its defaults.
 try {
-    $filter = StatsFilter::fromQuery($_GET, array_map(static fn (array $p): int => (int) $p['id'], $platforms));
+    $filter = StatsFilter::fromQuery($_GET, array_map(static fn (array $p): int => (int) $p['id'], $repository->all()));
 } catch (ValidationException) {
     $filter = StatsFilter::fromQuery([], []);
 }

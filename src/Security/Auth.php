@@ -76,6 +76,7 @@ final class Auth
      */
     public static function user(): ?array
     {
+        // sessionUser() also ends a malformed session, e.g. one missing last_activity.
         $user = self::sessionUser();
         if ($user === null) {
             return null;
@@ -138,7 +139,13 @@ final class Auth
     private static function sessionUser(): ?array
     {
         $user = $_SESSION[self::SESSION_KEY] ?? null;
+        if ($user === null) {
+            return null;
+        }
+        // A malformed entry (e.g. missing last_activity) counts as expired: end that session.
         if (!is_array($user) || !isset($user['id'], $user['username'], $user['last_activity'])) {
+            self::logout();
+
             return null;
         }
 
