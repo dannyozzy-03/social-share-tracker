@@ -2,7 +2,7 @@
   'use strict';
 
   const root = document.getElementById('dashboard');
-  if (!root || !window.Chart) {
+  if (!root || !window.Chart || !window.PagePicker) {
     return;
   }
 
@@ -11,6 +11,10 @@
   const errorBox = document.getElementById('filter-errors');
   const exportLink = document.getElementById('export-link');
   const platformBoxes = Array.from(form.querySelectorAll('input[name="platforms[]"]'));
+  // Picking a page reloads the report straight away; the picker keeps the ID in the hidden "page" input.
+  const pagePicker = window.PagePicker.create(document.getElementById('page-picker'), {
+    onChange: () => load(),
+  });
 
   const number = new Intl.NumberFormat('en-MY');
   const dayMonth = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
@@ -33,6 +37,9 @@
   let controller = null;
   let requestId = 0;
   let debounce = null;
+  let breakdownPage = 1;
+  const tablePanel = document.getElementById('pages-table-panel');
+  const tablePager = document.getElementById('pages-table-pager');
 
   Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
   Chart.defaults.plugins.legend.labels.usePointStyle = true;
@@ -178,18 +185,18 @@
   }
 
   // Clicking the only selected platform again brings all platforms back.
+  // Hidden platforms can still appear in reports but have no filter checkbox, so they cannot be soloed.
   function soloPlatform(id) {
+    if (!platformBoxes.some((box) => Number(box.value) === id)) {
+      return;
+    }
     const soloed = platformBoxes.every((box) => box.checked === (Number(box.value) === id));
     platformBoxes.forEach((box) => { box.checked = soloed || Number(box.value) === id; });
     load();
   }
 
   function focusPage(page) {
-    const select = form.elements.page;
-    if (!select.querySelector(`option[value="${page.id}"]`)) {
-      select.append(el('option', { value: String(page.id) }, truncate(pageLabel(page), 70)));
-    }
-    select.value = String(page.id);
+    pagePicker.set(page);
     form.scrollIntoView({ behavior: 'smooth', block: 'start' });
     load();
   }
@@ -241,16 +248,25 @@
 
   function showErrors(errors) {
     ['from', 'to', 'granularity', 'page'].forEach((name) => {
-      form.elements[name].classList.toggle('is-invalid', Boolean(errors && errors[name]));
+      // "page" is a hidden input; the visible field to mark is the picker search box.
+      const field = name === 'page' ? pagePicker.input : form.elements[name];
+      field.classList.toggle('is-invalid', Boolean(errors && errors[name]));
     });
     errorBox.classList.toggle('d-none', !errors);
     errorBox.textContent = errors ? Object.values(errors).join(' ') : '';
   }
 
   // A silent load is the live refresh: no loading fade, and it never interrupts a filter change.
-  async function load({ silent = false } = {}) {
+  // A filter change starts the page table again at page 1; paging the table (tablePage) and the
+  // live refresh keep the current table page, and paging fades only the table, not the charts.
+  async function load({ silent = false, tablePage = null } = {}) {
     if (silent && controller) {
       return;
+    }
+    if (tablePage !== null) {
+      breakdownPage = tablePage;
+    } else if (!silent) {
+      breakdownPage = 1;
     }
     const query = buildQuery().toString();
     history.replaceState(null, '', query ? `?${query}` : window.location.pathname);
@@ -261,13 +277,20 @@
     }
     controller = new AbortController();
     const current = ++requestId;
+    const busy = tablePage !== null ? tablePanel : report;
     if (!silent) {
-      report.classList.add('is-loading');
-      report.setAttribute('aria-busy', 'true');
+      busy.classList.add('is-loading');
+      busy.setAttribute('aria-busy', 'true');
+    }
+
+    // The table page is not a filter, so it stays out of the address bar and the CSV export link.
+    const statsQuery = new URLSearchParams(query);
+    if (breakdownPage > 1) {
+      statsQuery.set('breakdown_page', String(breakdownPage));
     }
 
     try {
-      const response = await fetch(`${root.dataset.statsEndpoint}?${query}`, {
+      const response = await fetch(`${root.dataset.statsEndpoint}?${statsQuery}`, {
         headers: { Accept: 'application/json' },
         credentials: 'same-origin',
         signal: controller.signal,
@@ -295,8 +318,10 @@
     } finally {
       if (current === requestId) {
         controller = null;
-        report.classList.remove('is-loading');
-        report.setAttribute('aria-busy', 'false');
+        [report, tablePanel].forEach((node) => {
+          node.classList.remove('is-loading');
+          node.setAttribute('aria-busy', 'false');
+        });
       }
     }
   }
@@ -358,14 +383,18 @@
     document.getElementById('mix-split').replaceChildren(...ranked.filter((p) => p.count > 0).map((p) =>
       el('span', { style: { '--gel': gel(p), 'flex-grow': String(p.count) }, title: `${p.name} ${share(p).toFixed(1)}%` })));
 
+    const filterable = new Set(platformBoxes.map((box) => Number(box.value)));
     document.getElementById('mix-rows').replaceChildren(...ranked.map((p) => {
       const pct = share(p);
+      const canSolo = filterable.has(p.id);
+      const action = !canSolo ? 'Hidden platform, not filterable.' : (soloed === p.id ? 'Show all platforms.' : `Show only ${p.name}.`);
       return el('button', {
         type: 'button',
-        class: `mix__row${soloed === p.id ? ' is-solo' : ''}${p.count === 0 ? ' is-zero' : ''}`,
+        class: `mix__row${soloed === p.id ? ' is-solo' : ''}${p.count === 0 ? ' is-zero' : ''}${canSolo ? '' : ' is-static'}`,
         style: { '--gel': gel(p), '--level': String(p.count / max) },
         'aria-pressed': String(soloed === p.id),
-        'aria-label': `${p.name}: ${number.format(p.count)} shares, ${pct.toFixed(1)}%. ${soloed === p.id ? 'Show all platforms.' : `Show only ${p.name}.`}`,
+        ...(canSolo ? {} : { 'aria-disabled': 'true', title: 'Hidden platform: shown for its history, not filterable' }),
+        'aria-label': `${p.name}: ${number.format(p.count)} shares, ${pct.toFixed(1)}%. ${action}`,
         onclick: () => soloPlatform(p.id),
       },
       el('span', { class: 'mix__name', 'aria-hidden': 'true' }, icon(p.icon), el('span', null, p.name)),
@@ -488,9 +517,84 @@
     )));
   }
 
-  function renderTable({ top_pages: pages, timeseries }) {
+  // Page numbers to show: first, last and one either side of the current page; null is a gap.
+  // Mirrors Paginator::links() in PHP.
+  function pageLinks(page, pages) {
+    const shown = [...new Set([1, page - 1, page, page + 1, pages])].filter((n) => n >= 1 && n <= pages).sort((a, b) => a - b);
+    const links = [];
+    shown.forEach((n, i) => {
+      const gap = n - (i ? shown[i - 1] : 0);
+      if (gap === 2) {
+        links.push(n - 1);
+      } else if (gap > 2) {
+        links.push(null);
+      }
+      links.push(n);
+    });
+    return links;
+  }
+
+  function goToTablePage(page) {
+    if (page === breakdownPage) {
+      return;
+    }
+    // Keep the table's top in view so the new rows appear where the reader is looking.
+    if (tablePanel.getBoundingClientRect().top < 0) {
+      tablePanel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+    load({ tablePage: page });
+  }
+
+  function renderPager({ page, pages, total, per_page: perPage }) {
+    const first = total ? (page - 1) * perPage + 1 : 0;
+    const last = Math.min(total, page * perPage);
+    document.getElementById('pages-table-range').textContent = total
+      ? `${number.format(first)}–${number.format(last)} of ${number.format(total)} ${total === 1 ? 'page' : 'pages'}`
+      : '';
+
+    tablePager.hidden = pages < 2;
+    if (pages < 2) {
+      tablePager.replaceChildren();
+      return;
+    }
+    // Re-rendering replaces the buttons, so remember which one had focus and restore it.
+    const focused = tablePager.contains(document.activeElement) ? document.activeElement.dataset.pager : null;
+
+    const button = (label, target, key, extra = {}) => el('button', {
+      type: 'button',
+      class: `btn btn-sm btn-booth table-pager__btn${extra.current ? ' is-current' : ''}`,
+      'data-pager': key,
+      ...(extra.current ? { 'aria-current': 'page' } : {}),
+      ...(target === null ? { disabled: '' } : { onclick: () => goToTablePage(target) }),
+      ...(extra.ariaLabel ? { 'aria-label': extra.ariaLabel } : {}),
+    }, ...label);
+
+    tablePager.replaceChildren(
+      button([icon('bi-chevron-left'), el('span', { class: 'table-pager__step' }, ' Previous')], page > 1 ? page - 1 : null, 'prev', { ariaLabel: 'Previous page' }),
+      ...pageLinks(page, pages).map((n) => (n === null
+        ? el('span', { class: 'table-pager__gap', 'aria-hidden': 'true' }, '…')
+        : button([number.format(n)], n, String(n), {
+          current: n === page,
+          ariaLabel: n === page ? `Page ${n}, current page` : `Page ${n}`,
+        }))),
+      button([el('span', { class: 'table-pager__step' }, 'Next '), icon('bi-chevron-right')], page < pages ? page + 1 : null, 'next', { ariaLabel: 'Next page' }),
+    );
+
+    if (focused) {
+      const target = tablePager.querySelector(`[data-pager="${focused}"]:not([disabled])`)
+        || tablePager.querySelector('[aria-current="page"]');
+      target.focus();
+    }
+  }
+
+  function renderTable({ breakdown, top_pages: topPages, timeseries }) {
     const series = timeseries.series;
+    const pages = breakdown.rows;
+    breakdownPage = breakdown.page; // the server clamps a page that no longer exists
+    renderPager(breakdown);
+
     document.getElementById('pages-table-head').replaceChildren(el('tr', null,
+      el('th', { scope: 'col', class: 'text-end breakdown__rank' }, el('span', { 'aria-hidden': 'true' }, '#'), el('span', { class: 'visually-hidden' }, 'Rank')),
       el('th', { scope: 'col' }, 'Page'),
       ...series.map((s) => el('th', { scope: 'col', class: 'text-end' },
         el('span', { class: 'swatch', style: { 'background-color': gel(s) }, 'aria-hidden': 'true' }), ` ${s.name}`)),
@@ -500,14 +604,16 @@
 
     const body = document.getElementById('pages-table-body');
     if (!pages.length) {
-      body.replaceChildren(el('tr', null, el('td', { colspan: String(series.length + 3), class: 'text-body-secondary' }, 'No shares in this period.')));
+      body.replaceChildren(el('tr', null, el('td', { colspan: String(series.length + 4), class: 'text-body-secondary' }, 'No shares in this period.')));
       return;
     }
-    const max = pages[0].total;
+    // Bars are scaled to the period's most shared page, so they compare across table pages.
+    const max = Math.max(1, topPages.length ? topPages[0].total : pages[0].total);
     body.replaceChildren(...pages.map((page) => el('tr', null,
+      el('td', { class: 'text-end breakdown__rank' }, number.format(page.rank)),
       el('td', { class: 'breakdown__page' },
-        el('a', { href: safeHref(page.url), target: '_blank', rel: 'noopener' }, truncate(pageLabel(page), 80)),
-        el('span', { class: 'breakdown__url' }, page.url)),
+        el('a', { href: safeHref(page.url), target: '_blank', rel: 'noopener', title: pageLabel(page) }, pageLabel(page)),
+        el('span', { class: 'breakdown__url', title: page.url }, page.url)),
       ...series.map((s) => el('td', { class: 'text-end' }, number.format(page.counts[s.slug] || 0))),
       el('td', { class: 'text-end breakdown__total' },
         el('strong', null, number.format(page.total)),

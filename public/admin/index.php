@@ -25,15 +25,26 @@ try {
     $filter = StatsFilter::fromQuery([], []);
 }
 
+// The page picker searches the server as the admin types (admin/api/pages.php), so only the
+// selected page is loaded here, however many pages exist. An unknown ID falls back to all pages.
+$selectedPage = $filter->pageId === null ? null : (new PageRepository($db))->find($filter->pageId);
+if ($filter->pageId !== null && $selectedPage === null) {
+    $filter = new StatsFilter($filter->from, $filter->to, $filter->granularity, $filter->platformIds);
+}
+
 View::render('admin/dashboard', [
     'title' => 'Dashboard',
     'active' => 'dashboard',
     'user' => $user,
     'filter' => $filter,
     'platforms' => $platforms,
-    'pages' => (new PageRepository($db))->allShared(),
+    'selectedPage' => $selectedPage,
     'scripts' => [
-        'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
+        [
+            'src' => 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
+            'integrity' => 'sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4',
+        ],
+        asset('js/page-picker.js'),
         asset('js/dashboard.js'),
     ],
 ], 'admin/layout');

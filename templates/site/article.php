@@ -104,7 +104,7 @@ $relatedArticles = array_slice(array_values(array_filter(
     </article>
 
     <div class="story-layout__aside">
-        <?= View::fetch('site/most-shared', ['articles' => $all, 'shareCounts' => $shareCounts, 'variant' => 'section']) ?>
+        <?= View::fetch('site/most-shared', ['articles' => $all, 'shareCounts' => $shareCounts, 'variant' => 'section', 'limit' => 6]) ?>
     </div>
 </div>
 

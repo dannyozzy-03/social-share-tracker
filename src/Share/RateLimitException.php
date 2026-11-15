@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Share;
 
-use RuntimeException;
+use App\Exception\AppException;
 
-final class RateLimitException extends RuntimeException
+final class RateLimitException extends AppException
 {
     public function __construct()
     {

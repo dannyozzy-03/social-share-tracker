@@ -363,6 +363,102 @@ legend.form-label {
 }
 .range-group .btn.active { background: var(--brand); border-color: var(--brand); color: #FFFFFF; }
 
+/* The rail's rise-in animation makes it a stacking context; lift it so the page picker's
+   list opens over the report panels below instead of underneath them. */
+.cue-rail { position: relative; z-index: 20; }
+
+/* Page picker: a search box with a server-paged result list (public/assets/js/page-picker.js). */
+.picker { position: relative; }
+.picker__field { position: relative; }
+.picker__icon {
+  position: absolute;
+  top: 50%;
+  left: .75rem;
+  transform: translateY(-50%);
+  color: var(--ink-faint);
+  font-size: .875rem;
+  pointer-events: none;
+}
+.picker__input { padding-left: 2.1rem; padding-right: 2.25rem; text-overflow: ellipsis; }
+.picker__input::placeholder { color: var(--ink); opacity: 1; }
+.picker__input:focus::placeholder { color: var(--ink-faint); }
+.picker__clear {
+  position: absolute;
+  top: 50%;
+  right: .35rem;
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--ink-faint);
+  transform: translateY(-50%);
+}
+.picker__clear:hover { background: var(--surface-3); color: var(--ink); }
+.picker__clear:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+.picker__clear[hidden] { display: none; }
+.picker__popup {
+  position: absolute;
+  top: calc(100% + .35rem);
+  left: 0;
+  z-index: 30;
+  width: max(100%, min(32rem, calc(100vw - 2rem)));
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+.picker__popup[hidden] { display: none; }
+@media (max-width: 767.98px) {
+  .picker__popup { width: 100%; }
+}
+.picker__list {
+  max-height: min(20rem, 55vh);
+  margin: 0;
+  padding: .3rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+.picker__list:empty { display: none; }
+.picker__option {
+  display: grid;
+  grid-template-columns: 1rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .6rem;
+  padding: .5rem .6rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.picker__option.is-active { background: var(--brand-soft); }
+.picker__check { visibility: hidden; color: var(--brand-ink); }
+.picker__option.is-current .picker__check { visibility: visible; }
+.picker__text { display: flex; flex-direction: column; min-width: 0; }
+.picker__title,
+.picker__url { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.picker__title { color: var(--ink); font-size: .875rem; font-weight: 500; }
+.picker__option--all .picker__title { font-weight: 600; }
+.picker__url { color: var(--ink-faint); font-size: .75rem; }
+.picker__shares { color: var(--ink-soft); font-size: .75rem; font-variant-numeric: tabular-nums; }
+.picker__option mark { padding: 0; background: none; color: var(--brand-ink); font-weight: 700; }
+.picker__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .45rem .9rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-faint);
+  font-size: .75rem;
+}
+.picker__list:empty + .picker__foot { border-top: 0; padding-block: .75rem; }
+.picker__foot[hidden] { display: none; }
+.picker__more { padding: 0; font-size: .75rem; font-weight: 600; }
+
 /* Platform filter chips; --gel-day / --gel-night carry the brand colour for each theme. */
 .channels { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
 .channel {
@@ -504,6 +600,8 @@ legend.form-label {
 }
 .mix__row:last-child { border-bottom: 0; }
 .mix__row:hover { background: var(--surface-2); }
+.mix__row.is-static { cursor: default; }
+.mix__row.is-static:hover { background: none; }
 .mix__row:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
 .mix__row.is-solo { background: color-mix(in srgb, var(--gel) 9%, transparent); box-shadow: inset 2px 0 0 var(--gel); }
 .mix__row.is-zero { opacity: .5; }
@@ -586,8 +684,40 @@ legend.form-label {
 }
 .breakdown td,
 .breakdown th { border-color: var(--line); }
-.breakdown__page { max-width: 28rem; }
-.breakdown__page a { display: block; color: var(--ink); font-weight: 600; text-decoration: none; }
+/* Long titles and URLs are clipped (full text in the tooltip) so the number columns stay on screen. */
+.breakdown__page { min-width: 12rem; max-width: 22rem; }
+.breakdown__page a { max-width: 22rem; }
+/* width: 0 + min-width: 100% fills the column without widening it, so the column can shrink on narrow screens. */
+.breakdown__page .breakdown__url { width: 0; min-width: 100%; max-width: 22rem; }
+.breakdown__page a {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.breakdown__rank { width: 2.5rem; padding-right: .25rem !important; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+#pages-table-panel { transition: opacity .2s var(--ease-out); }
+#pages-table-panel.is-loading { opacity: .6; }
+.table-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .35rem;
+  margin-top: 1rem;
+}
+.table-pager[hidden] { display: none; }
+.table-pager__btn { min-width: 2.25rem; font-variant-numeric: tabular-nums; }
+.table-pager__btn.is-current { background: var(--brand); border-color: var(--brand); color: #FFFFFF; }
+.table-pager__btn:disabled { opacity: .45; }
+.table-pager__gap { padding: 0 .25rem; color: var(--ink-faint); }
+@media (max-width: 575.98px) {
+  .table-pager { justify-content: center; }
+  .table-pager__step { display: none; }
+}
 .breakdown__page a:hover { color: var(--brand-ink); text-decoration: underline; }
 .breakdown__url {
   display: block;

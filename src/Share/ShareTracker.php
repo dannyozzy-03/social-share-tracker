@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Share;
 
+use App\Exception\DatabaseException;
 use App\Repository\PageRepository;
 use App\Repository\PlatformRepository;
 use App\Repository\ShareClickRepository;
@@ -12,6 +13,12 @@ use App\Validation\ValidationException;
 use App\Validation\Validator;
 use DateTimeImmutable;
 
+/**
+ * Records one share click: validates it, applies the rate limit and the repeat-click window, then stores it.
+ *
+ * Error handling: no I/O of its own. It throws ValidationException and RateLimitException, and
+ * the repositories it calls already turn database faults into DatabaseException.
+ */
 final class ShareTracker
 {
     /** @param list<string> $allowedHosts */
@@ -28,7 +35,8 @@ final class ShareTracker
     /**
      * @param array<string, mixed> $input
      * @return array{recorded: bool, total: int}
-     * @throws ValidationException|RateLimitException
+     * @throws ValidationException|RateLimitException for bad or too frequent requests
+     * @throws DatabaseException from the repositories; api/track.php lets it reach the 503 handler
      */
     public function track(array $input, string $ipHash, ?string $userAgent, ?DateTimeImmutable $now = null): array
     {

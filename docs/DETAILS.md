@@ -20,6 +20,7 @@ Built with plain **PHP 8 + MySQL**: no framework and no Composer. The UI uses **
 - **Click tracking.** Every click is sent to the server and saved in the database.
 - **Live counts.** Share counts on the website and the dashboard update by themselves every 10 seconds, with no page reload.
 - **Admin dashboard** (login required) with charts of shares by platform, over time and by page, a feed of the latest shares and a per-page table.
+- **Built for a big archive.** The front page shows the newest story plus 6 more per page, with numbered pages (`?page=2`, also on section pages). **Trending (Most Shared)** is a top-5 chart (top 6 on article and section pages), and the story strip under the menu shows the 10 newest stories. On the dashboard, the page filter is a search box and the **Page breakdown** table is paged, 10 rows at a time.
 - **Filters** by date range, platform, page and day/week/month. Filters apply instantly and are saved in the URL. Results can be exported to CSV.
 - **Add new platforms** (e.g. Reddit) from the admin. They appear everywhere without code changes.
 - **Light and dark mode** on every page. Light is the default; the moon/sun button in the header switches it, and the browser remembers the choice.
@@ -68,6 +69,25 @@ The root `.htaccess` serves only `public/` and blocks the private folders.
 
 To change the admin password, run `php bin/create-admin.php admin "new-password"`.
 
+### Try it with a big archive
+
+The demo site has 12 stories. To see how the dashboard copes with a large site, add a few thousand extra shared pages:
+
+```bash
+php bin/seed-demo.php --archive=2000    # add 2,000 extra pages with realistic share counts
+php bin/seed-demo.php --remove-archive  # take them out again
+```
+
+The extra pages live under `https://archive.example/` (a reserved example domain), so your own data is never touched, and running `--archive` again replaces them instead of adding more. A few are shared a lot and most only once or twice, spread over the last 90 days: pick **90 days** on the dashboard to see them all.
+
+**Page breakdown** lists every shared page, ranked, 10 rows at a time. The `#` column is the overall rank, the bars are scaled to the period's top page so they compare across pages, and the 10-second live refresh keeps you on the page you are reading:
+
+![Page breakdown with 2,008 pages, paged 10 at a time](screenshots/dashboard-page-breakdown.png)
+
+**The page filter** is a search box instead of a drop-down, so the dashboard no longer sends every page to the browser. Type any words from a title or address; matches load 20 at a time, with more as you scroll:
+
+![Searching 2,008 pages for "penang hawker"](screenshots/dashboard-page-search.png)
+
 ---
 
 ## How a share is tracked
@@ -102,7 +122,9 @@ Buttons are normal links, so sharing still works with JavaScript turned off. Onl
 
 **`GET /api/counts.php?url[]=…&url[]=…`**: current share totals for up to 20 pages. Used for the live counts.
 
-**`GET /admin/api/stats.php`** (admin login required): the dashboard data. Takes `from`, `to`, `granularity` (`day`, `week` or `month`), `platforms[]` and `page`. `GET /admin/export.php` takes the same filters and returns a CSV file.
+**`GET /admin/api/stats.php`** (admin login required): the dashboard data. Takes `from`, `to`, `granularity` (`day`, `week` or `month`), `platforms[]` and `page`, plus `breakdown_page` for the **Page breakdown** table, which lists every shared page ranked by shares, 10 at a time (a page past the end returns the last one). `GET /admin/export.php` takes the same filters and returns a CSV file.
+
+**`GET /admin/api/pages.php?q=…&limit=20&offset=0`** (admin login required): searches shared pages for the dashboard's **Page** filter. Every word in `q` must appear in the page title or URL (`%` and `_` match literally). With no `q`, the newest pages come first. Returns at most `limit` (1–50) pages with their all-time share totals, plus `has_more` and `next_offset` for the next batch. The page filter is a search box rather than a drop-down, so the dashboard stays fast however many articles the site has: it loads 20 matches at a time and more as you scroll.
 
 ---
 
@@ -114,7 +136,7 @@ Buttons are normal links, so sharing still works with JavaScript turned off. Onl
 | `pages` | Every page that has been shared, found by a hash of its cleaned-up URL |
 | `share_clicks` | One row per click: platform, page, hashed visitor IP, time |
 | `admins` | Admin accounts (bcrypt passwords) |
-| `login_attempts` | Recent logins, for the brute-force lockout |
+| `login_attempts` | Recent logins, for the brute-force lockout (rows older than 7 days are pruned) |
 
 - A new platform is just a new row, because share links are templates like `https://t.me/share/url?url={url}&text={title}`.
 - URLs are cleaned before saving (tracking tags like `utm_*`, `fbclid` and `#fragments` are removed), so variants count as one page.
@@ -163,7 +185,23 @@ Defaults are in `config/config.example.php`. Your own values go in `config/confi
 - **Login:** bcrypt passwords, a new session ID on login, secure cookies, an idle timeout and a lockout after 5 wrong passwords.
 - **Tracking abuse:** only known platforms and allowed websites are accepted. The API also enforces a URL length limit, an 8 KB body limit, a rate limit and 10-second de-duplication.
 - **Privacy:** visitor IPs are stored only as a keyed hash, never as the raw IP.
-- **CSV export:** cells are protected against spreadsheet formula injection.
+- **CSV export:** cells are protected against spreadsheet formula injection. If the database fails mid-download, the file ends with an "EXPORT INCOMPLETE" line instead of being silently short.
+- **Third-party files:** Bootstrap, Bootstrap Icons and Chart.js load with Subresource Integrity hashes, so a tampered CDN file is refused.
+- **Headers:** HSTS on HTTPS, a Permissions-Policy, `nosniff`, `SAMEORIGIN` framing and a strict Referrer-Policy.
+- **Sessions:** the website's sign-in indicator never creates a session for ordinary visitors, and the CSRF token is replaced at sign-in.
+
+---
+
+## Error handling
+
+One rule is applied across `src/`:
+
+- **Every exception the app throws extends `App\Exception\AppException`**: `DatabaseException`, `ConfigurationException`, `ValidationException` and `RateLimitException`.
+- **Classes that touch I/O catch the low-level error and rethrow a typed one.** Every public repository method (and `ShareStats`, `LoginThrottle`, `DemoSeeder`, `SqlFile`, `Database`) wraps its queries in `try`/`catch (PDOException)` and throws a `DatabaseException` that names the operation ("Database error while trying to load the platforms") and keeps the driver error as `getPrevious()`. SQL and credentials never appear in the message. `Auth`, `Csrf`, `Config` and `View` do the same for sessions, random tokens, config files and templates.
+- **Pure classes have nothing to catch**: `Validator`, `Url`, `ShareLinkBuilder`, `StatsFilter`, `Paginator`, `PageSearch`, `PlatformForm`, `ShareTracker` and `ArticleRepository` do no I/O. They only throw `ValidationException` (or `RateLimitException`) for bad input, and let a repository's `DatabaseException` pass through untouched. Each says so in its class comment.
+- **The rule is enforced by a test**, `tests/ErrorHandlingConventionTest.php`. It fails if any class runs SQL without catching `PDOException`, or if any public method of a database class lets a raw driver error escape (it calls every one of them against a connection that always fails). It also fails if a class without `try`/`catch` is not on the pure list or does I/O, or if an exception class does not extend `AppException`.
+- **Entry points catch what they can answer**: `422` for validation, `429` for rate limits, a field error for a duplicate platform slug. Everything else reaches the handler in `src/bootstrap.php`, which logs it and answers `503` + `Retry-After` when the database is down, or `500` otherwise, as HTML or JSON. Details are shown only when `app.debug` is on.
+- **Demo data is written in one transaction**, so a failed seed rolls back instead of leaving half-deleted data.
 
 ---
 
@@ -173,7 +211,7 @@ Defaults are in `config/config.example.php`. Your own values go in `config/confi
 php tests/run.php
 ```
 
-29 unit tests cover URL cleaning, validation, share links and dashboard filters. The GitHub Actions workflow (`.github/workflows/ci.yml`) runs them on PHP 8.1–8.4, installs against a real MySQL 8 database and smoke-tests the site and the API.
+90 tests cover pagination, URL cleaning, validation, share links, dashboard filters, the page search and the demo archive (run against an in-memory SQLite database), and the error-handling rule for every class (using a database connection that always fails). The GitHub Actions workflow (`.github/workflows/ci.yml`) runs them on PHP 8.1–8.4. It also installs against a real MySQL 8 database, loads a 500-page archive, and smoke-tests the site, the front-page pages, the share API and the admin's page search and Page breakdown APIs.
 
 ---
 

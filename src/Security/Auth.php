@@ -4,31 +4,46 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use App\Exception\AppException;
+use App\Exception\DatabaseException;
 use App\Repository\AdminRepository;
+use ErrorException;
 
 final class Auth
 {
     private const SESSION_KEY = 'admin';
+    private const SESSION_NAME = 'sst_admin';
 
+    /** @throws AppException when PHP cannot start the session (e.g. unwritable session directory) */
     public static function startSession(): void
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
             return;
         }
-        ini_set('session.use_strict_mode', '1');
-        ini_set('session.use_only_cookies', '1');
-        session_name('sst_admin');
-        session_set_cookie_params([
-            'lifetime' => 0,
-            'path' => base_path() . '/admin/',
-            'secure' => is_https(),
-            'httponly' => true,
-            'samesite' => 'Lax',
-        ]);
-        session_start();
+        try {
+            ini_set('session.use_strict_mode', '1');
+            ini_set('session.use_only_cookies', '1');
+            ini_set('session.use_trans_sid', '0');
+            session_name(self::SESSION_NAME);
+            session_set_cookie_params([
+                'lifetime' => 0,
+                'path' => base_path() . '/admin/',
+                'secure' => is_https(),
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
+            $started = session_start();
+        } catch (ErrorException $e) {
+            // The bootstrap error handler turns session warnings into ErrorException.
+            throw new AppException('Could not start the admin session.', 0, $e);
+        }
+        if (!$started) {
+            throw new AppException('Could not start the admin session.');
+        }
     }
 
-    public static function attempt(AdminRepository $admins, string $username, string $password): bool
+    /** @throws DatabaseException */
+    public static function attempt(AdminRepository $admins, string $username, #[\SensitiveParameter] string $password): bool
     {
         $admin = $admins->findByUsername($username);
 
@@ -43,7 +58,9 @@ final class Auth
         }
         $admins->touchLastLogin((int) $admin['id']);
 
+        // New session ID and new CSRF token: nothing issued before sign-in stays valid after it.
         session_regenerate_id(true);
+        Csrf::rotate();
         $_SESSION[self::SESSION_KEY] = [
             'id' => (int) $admin['id'],
             'username' => $admin['username'],
@@ -53,18 +70,14 @@ final class Auth
         return true;
     }
 
-    /** @return array{id: int, username: string, last_activity: int}|null */
+    /**
+     * The signed-in admin, or null. Counts as activity, so it extends the idle timeout.
+     * @return array{id: int, username: string, last_activity: int}|null
+     */
     public static function user(): ?array
     {
-        $user = $_SESSION[self::SESSION_KEY] ?? null;
-        if (!is_array($user)) {
-            return null;
-        }
-
-        $idleSeconds = (int) config('admin.session_idle_minutes', 30) * 60;
-        if (time() - (int) $user['last_activity'] > $idleSeconds) {
-            self::logout();
-
+        $user = self::sessionUser();
+        if ($user === null) {
             return null;
         }
         $_SESSION[self::SESSION_KEY]['last_activity'] = time();
@@ -72,22 +85,18 @@ final class Auth
         return $user;
     }
 
+    /**
+     * A read-only check for the public site's sign-in indicator: it does not extend the idle
+     * timeout, and it never creates a session for visitors who have no admin session cookie.
+     */
     public static function isAuthenticated(): bool
     {
+        if (session_status() !== PHP_SESSION_ACTIVE && !isset($_COOKIE[self::SESSION_NAME])) {
+            return false;
+        }
         self::startSession();
-        $user = $_SESSION[self::SESSION_KEY] ?? null;
-        if (!is_array($user)) {
-            return false;
-        }
 
-        $idleSeconds = (int) config('admin.session_idle_minutes', 30) * 60;
-        if (time() - (int) ($user['last_activity'] ?? 0) > $idleSeconds) {
-            self::logout();
-
-            return false;
-        }
-
-        return true;
+        return self::sessionUser() !== null;
     }
 
     /** @return array{id: int, username: string, last_activity: int} */
@@ -116,6 +125,30 @@ final class Auth
             'httponly' => $params['httponly'],
             'samesite' => $params['samesite'],
         ]);
-        session_destroy();
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+    }
+
+    /**
+     * The admin stored in the session, or null when there is none, it is malformed or it has
+     * been idle too long (in which case the session is ended).
+     * @return array{id: int, username: string, last_activity: int}|null
+     */
+    private static function sessionUser(): ?array
+    {
+        $user = $_SESSION[self::SESSION_KEY] ?? null;
+        if (!is_array($user) || !isset($user['id'], $user['username'], $user['last_activity'])) {
+            return null;
+        }
+
+        $idleSeconds = max(1, (int) config('admin.session_idle_minutes', 30)) * 60;
+        if (time() - (int) $user['last_activity'] > $idleSeconds) {
+            self::logout();
+
+            return null;
+        }
+
+        return $user;
     }
 }

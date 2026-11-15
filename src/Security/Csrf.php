@@ -4,14 +4,23 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use App\Exception\AppException;
+use Exception;
+
 final class Csrf
 {
     private const KEY = '_csrf';
 
+    /** @throws AppException when no secure random source is available */
     public static function token(): string
     {
         if (empty($_SESSION[self::KEY]) || !is_string($_SESSION[self::KEY])) {
-            $_SESSION[self::KEY] = bin2hex(random_bytes(32));
+            try {
+                $_SESSION[self::KEY] = bin2hex(random_bytes(32));
+            } catch (Exception $e) {
+                // random_bytes() throws only when the OS has no secure random source.
+                throw new AppException('Could not create a security token.', 0, $e);
+            }
         }
 
         return $_SESSION[self::KEY];
@@ -28,5 +37,11 @@ final class Csrf
             && isset($_SESSION[self::KEY])
             && is_string($_SESSION[self::KEY])
             && hash_equals($_SESSION[self::KEY], $token);
+    }
+
+    /** Discards the current token; the next token() call issues a new one. */
+    public static function rotate(): void
+    {
+        unset($_SESSION[self::KEY]);
     }
 }

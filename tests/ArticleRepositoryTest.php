@@ -33,7 +33,7 @@ return [
             check(count($sameSectionStories) >= 2, 'Expected at least two related stories for ' . $article['slug'] . '.');
         }
     },
-    'trending list includes every story and uses its updated title' => function (): void {
+    'trending ranks the most shared stories first, shows only the top five, and uses its updated title' => function (): void {
         $articles = ArticleRepository::all();
         $shareCounts = [];
         foreach ($articles as $article) {
@@ -45,11 +45,14 @@ return [
         $html = View::fetch('site/most-shared', ['articles' => $articles, 'shareCounts' => $shareCounts]);
 
         check(str_contains($html, 'Trending (Most Shared)'), 'Expected updated trending heading.');
-        check(substr_count($html, 'class="ranked__item"') === count($articles), 'Every story must appear in trending.');
-        check(str_contains($html, e($articles[array_key_last($articles)]['title'])), 'The last story must appear in trending.');
-        foreach ($articles as $article) {
+        check(substr_count($html, 'class="ranked__item"') === 5, 'Trending is a top-5 list, however many stories exist.');
+        $lastTitle = e($articles[array_key_last($articles)]['title']);
+        check(str_contains($html, $lastTitle), 'The most shared story must appear in trending.');
+        check(strpos($html, $lastTitle) < strpos($html, e($articles[0]['title'])), 'The most shared story must rank first.');
+        foreach (ArticleRepository::mostShared($articles, $shareCounts, 5) as $article) {
             check(str_contains($html, e($article['summary'])), 'Trending must show the description for ' . $article['slug']);
         }
+        check(substr_count(View::fetch('site/most-shared', ['articles' => $articles, 'shareCounts' => $shareCounts, 'limit' => 3]), 'class="ranked__item"') === 3, 'The limit is configurable.');
     },
     'story cards display each story description' => function (): void {
         foreach (ArticleRepository::all() as $article) {
@@ -76,7 +79,10 @@ return [
             'meta' => [],
             'section' => 'Food',
             'homeUrl' => url(),
-            'articles' => $articles,
+            'lead' => $articles[0],
+            'stories' => array_slice($articles, 1, 6),
+            'pager' => new App\Support\Paginator(count($articles) - 1, 6),
+            'pageUrl' => static fn (int $page): string => url(),
             'allArticles' => $allArticles,
             'shareCounts' => $shareCounts,
             'platforms' => [],
@@ -104,7 +110,10 @@ return [
             'meta' => [],
             'section' => null,
             'homeUrl' => url(),
-            'articles' => $articles,
+            'lead' => $articles[0],
+            'stories' => array_slice($articles, 1, 6),
+            'pager' => new App\Support\Paginator(count($articles) - 1, 6),
+            'pageUrl' => static fn (int $page): string => url(),
             'allArticles' => $articles,
             'shareCounts' => $shareCounts,
             'platforms' => [],
@@ -114,7 +123,7 @@ return [
         $trendingPosition = strpos($html, 'id="ranked-title"');
 
         check($leadPosition !== false && $latestPosition > $leadPosition, 'Homepage latest stories must follow the feature.');
-        check($trendingPosition !== false && $latestPosition < $trendingPosition, 'Homepage latest stories must appear before the full Trending column.');
+        check($trendingPosition !== false && $latestPosition < $trendingPosition, 'Homepage latest stories must appear before the Trending column.');
     },
     'article page places section-style trending after previous and next stories' => function (): void {
         $articles = ArticleRepository::all();

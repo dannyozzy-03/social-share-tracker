@@ -378,6 +378,53 @@ body.site .ranked__item:hover .ranked__title { color: var(--brand-ink); }
   .ranked--section .ranked__item--section { grid-template-columns: minmax(0, 1fr) 7rem; }
 }
 
+/* Pager under the story list: numbered links that collapse to "Previous / 2 of 9 / Next" on phones. */
+.block-note { color: var(--ink-faint); font-size: .8125rem; font-weight: 500; white-space: nowrap; }
+.latest--paged { margin-top: 0; }
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem 1.5rem;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+.pager__summary { margin: 0; color: var(--ink-faint); font-size: .8125rem; }
+.pager__list { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+.pager__link,
+.pager__gap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 .75rem;
+  border-radius: var(--radius-sm);
+  font-size: .875rem;
+  font-weight: 600;
+}
+.pager__gap { min-width: 1.5rem; padding: 0; color: var(--ink-faint); }
+body.site .pager__link {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color .2s var(--ease-out), color .2s var(--ease-out);
+}
+body.site .pager__link:hover { border-color: var(--brand); color: var(--brand-ink); }
+body.site .pager__link:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+body.site .pager__link.is-current { border-color: var(--brand); background: var(--brand); color: #FFFFFF; }
+body.site .pager__link.is-disabled { color: var(--ink-faint); opacity: .55; pointer-events: none; }
+.pager__link--step .bi { font-size: .75rem; }
+@media (max-width: 575.98px) {
+  .pager { justify-content: center; }
+  .pager__summary { width: 100%; text-align: center; }
+  .pager__number { display: none; }
+  .pager__number:has(.is-current) { display: list-item; list-style: none; }
+}
 /* Card grid: image with a text box lifted over its lower edge. */
 .latest { margin-top: clamp(2.5rem, 5vw, 3.5rem); }
 .home--section .latest { margin-top: clamp(1.5rem, 3vw, 2.25rem); }

@@ -6,6 +6,7 @@ require dirname(__DIR__, 2) . '/src/bootstrap.php';
 
 use App\Admin\PlatformForm;
 use App\Database;
+use App\Exception\DatabaseException;
 use App\Repository\PlatformRepository;
 use App\Security\Auth;
 use App\Security\Csrf;
@@ -62,6 +63,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect('admin/platforms.php');
         } catch (ValidationException $e) {
             $errors = $e->errors();
+        } catch (DatabaseException $e) {
+            // Two admins adding the same slug at once: the unique key catches what the form check missed.
+            if (!$creating || $e->sqlState() !== '23000') {
+                throw $e;
+            }
+            $errors['slug'] = 'Another platform already uses this slug.';
         }
     }
     http_response_code(422);

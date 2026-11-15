@@ -8,6 +8,11 @@ use App\Validation\ValidationException;
 use App\Validation\Validator;
 use DateTimeImmutable;
 
+/**
+ * The dashboard's validated filters: date range, grouping, platforms and page.
+ *
+ * Error handling: pure. Bad input throws ValidationException listing every invalid field.
+ */
 final class StatsFilter
 {
     public const GRANULARITIES = ['day', 'week', 'month'];

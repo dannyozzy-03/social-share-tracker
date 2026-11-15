@@ -25,7 +25,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: pdo_mysql, mbstring
+          extensions: pdo_mysql, pdo_sqlite, mbstring
           coverage: none
 
       - name: Lint PHP
@@ -37,11 +37,39 @@ jobs:
       - name: Install against MySQL 8 (schema, seed, admin, demo data)
         run: php bin/install.php --db-pass=root --admin-pass=ci-password-123 --demo
 
+      - name: Add a 500-page demo archive (checks the dashboard copes with a big site)
+        run: php bin/seed-demo.php --archive=500
+
       - name: Smoke test
+        env:
+          BASE: http://127.0.0.1:8000
+          ADMIN_PASSWORD: ci-password-123
         run: |
           php -S 127.0.0.1:8000 -t public > /dev/null 2>&1 &
           sleep 1
-          curl -sf http://127.0.0.1:8000/ | grep -q 'data-platform="whatsapp"'
-          curl -sf -X POST http://127.0.0.1:8000/api/track.php \
+          status() { curl -s -o /dev/null -w '%{http_code}' "$@"; }
+
+          # Website: share buttons, tracking, and the paged story list.
+          curl -sf "$BASE/" | grep -q 'data-platform="whatsapp"'
+          curl -sf -X POST "$BASE/api/track.php" \
             -H 'Content-Type: application/json' \
             -d '{"platform":"facebook","url":"http://localhost:8000/"}' | grep -q '"recorded":true'
+          curl -sf "$BASE/?page=2" | grep -q 'class="pager"'
+          test "$(status "$BASE/?page=999")" = 404
+
+          # Admin APIs refuse anonymous requests, then work after signing in.
+          test "$(status "$BASE/admin/api/pages.php")" = 401
+          jar=$(mktemp)
+          token=$(curl -sf -c "$jar" "$BASE/admin/login.php" | grep -o 'name="_csrf" value="[a-f0-9]*"' | head -1 | cut -d'"' -f4)
+          curl -s -b "$jar" -c "$jar" -o /dev/null --data-urlencode "_csrf=$token" \
+            --data-urlencode username=admin --data-urlencode "password=$ADMIN_PASSWORD" "$BASE/admin/login.php"
+
+          # Page filter: the search answers in batches of 20, never with the whole archive.
+          curl -sf -b "$jar" "$BASE/admin/api/pages.php" | grep -q '"has_more":true'
+          curl -sf -b "$jar" "$BASE/admin/api/pages.php?q=penang" | grep -qi '"title":"[^"]*penang'
+          test "$(status -b "$jar" "$BASE/admin/api/pages.php?limit=500")" = 422
+
+          # Page breakdown: page 2 of the ranked table starts at rank 11; bad page numbers are refused.
+          range="from=$(date -u -d '-120 days' +%F)&to=$(date -u -d '+1 day' +%F)"
+          curl -sf -b "$jar" "$BASE/admin/api/stats.php?$range&breakdown_page=2" | grep -q '"rank":11[,}]'
+          test "$(status -b "$jar" "$BASE/admin/api/stats.php?breakdown_page=abc")" = 422

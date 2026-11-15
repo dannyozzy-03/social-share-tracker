@@ -6,6 +6,12 @@ namespace App\Validation;
 
 use DateTimeImmutable;
 
+/**
+ * Format checks for request input.
+ *
+ * Error handling: pure. Checks return true/false or null instead of throwing; callers collect the
+ * failures into a ValidationException.
+ */
 final class Validator
 {
     public const SHARE_PLACEHOLDERS = ['url', 'title', 'description'];

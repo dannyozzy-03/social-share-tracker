@@ -4,40 +4,51 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Exception\DatabaseException;
 use DateTimeImmutable;
 use PDO;
+use PDOException;
 
 final class Database
 {
     private static ?PDO $connection = null;
 
+    /** @throws DatabaseException */
     public static function connection(): PDO
     {
         return self::$connection ??= self::connect();
     }
 
-    /** $withDatabase = false connects to the server only (installer, before the DB exists). */
+    /**
+     * $withDatabase = false connects to the server only (installer, before the DB exists).
+     * @throws DatabaseException
+     */
     public static function connect(bool $withDatabase = true): PDO
     {
         $db = (array) config('db');
-        $dsn = sprintf(
-            'mysql:host=%s;port=%d;charset=%s',
-            $db['host'] ?? '127.0.0.1',
-            (int) ($db['port'] ?? 3306),
-            $db['charset'] ?? 'utf8mb4'
-        );
+        $host = (string) ($db['host'] ?? '127.0.0.1');
+        $port = (int) ($db['port'] ?? 3306);
+        $dsn = sprintf('mysql:host=%s;port=%d;charset=%s', $host, $port, $db['charset'] ?? 'utf8mb4');
         if ($withDatabase) {
-            $dsn .= ';dbname=' . $db['name'];
+            $dsn .= ';dbname=' . ($db['name'] ?? '');
         }
 
-        $pdo = new PDO($dsn, (string) ($db['user'] ?? ''), (string) ($db['pass'] ?? ''), [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]);
+        try {
+            $pdo = new PDO($dsn, (string) ($db['user'] ?? ''), (string) ($db['pass'] ?? ''), [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]);
+        } catch (PDOException $e) {
+            throw DatabaseException::connection($host, $port, $e);
+        }
 
-        // Keep NOW()/CURRENT_TIMESTAMP in the same timezone as PHP.
-        $pdo->exec('SET time_zone = ' . $pdo->quote((new DateTimeImmutable())->format('P')));
+        try {
+            // Keep NOW()/CURRENT_TIMESTAMP in the same timezone as PHP.
+            $pdo->exec('SET time_zone = ' . $pdo->quote((new DateTimeImmutable())->format('P')));
+        } catch (PDOException $e) {
+            throw DatabaseException::during('set the connection time zone', $e);
+        }
 
         return $pdo;
     }

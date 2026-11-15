@@ -2,11 +2,21 @@
 /**
  * @var App\Stats\StatsFilter $filter
  * @var list<array<string, mixed>> $platforms
- * @var list<array{id: int, url: string, title: ?string}> $pages
+ * @var array{id: int, url: string, title: ?string}|null $selectedPage
  */
 
 $allPlatformsSelected = $filter->platformIds === [];
 $today = (new DateTimeImmutable())->format('Y-m-d');
+$selectedPage ??= null;
+$selectedLabel = $selectedPage === null ? '' : ($selectedPage['title'] ?? preg_replace('#^https?://#i', '', $selectedPage['url']));
+// Built from the validated filter, not $_GET, so the link never carries a value the page rejected.
+$exportQuery = http_build_query(array_filter([
+    'from' => $filter->from->format('Y-m-d'),
+    'to' => $filter->to->format('Y-m-d'),
+    'granularity' => $filter->granularity,
+    'page' => $filter->pageId,
+    'platforms' => $filter->platformIds,
+], static fn ($value): bool => $value !== null && $value !== []));
 ?>
 <div id="dashboard"
      data-stats-endpoint="<?= e(url('admin/api/stats.php')) ?>"
@@ -19,7 +29,7 @@ $today = (new DateTimeImmutable())->format('Y-m-d');
             <p class="booth-subtitle">Which stories readers pass on, where they share them, and when.</p>
             <p class="live-tag"><span class="live-tag__lamp" aria-hidden="true"></span> Live · updates every 10 seconds · last <time id="live-time">–</time></p>
         </div>
-        <a class="btn btn-booth" id="export-link" href="<?= e(url('admin/export.php') . '?' . http_build_query($_GET)) ?>">
+        <a class="btn btn-booth" id="export-link" href="<?= e(url('admin/export.php') . '?' . $exportQuery) ?>">
             <i class="bi bi-download" aria-hidden="true"></i> Export CSV
         </a>
     </header>
@@ -49,15 +59,30 @@ $today = (new DateTimeImmutable())->format('Y-m-d');
                 </div>
             </div>
             <div class="col-md-8 col-xl-3">
-                <label class="form-label" for="page">Page</label>
-                <select class="form-select" id="page" name="page">
-                    <option value="">All pages</option>
-                    <?php foreach ($pages as $page): ?>
-                        <option value="<?= e($page['id']) ?>"<?= $filter->pageId === (int) $page['id'] ? ' selected' : '' ?>>
-                            <?= e(mb_strimwidth($page['title'] ?? $page['url'], 0, 70, '…')) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                <label class="form-label" for="page-search" id="page-label">Page</label>
+                <?php /* Searchable picker: results come from admin/api/pages.php in pages of 20, so it stays fast with any number of articles. */ ?>
+                <div class="picker" id="page-picker"
+                     data-endpoint="<?= e(url('admin/api/pages.php')) ?>"
+                     data-login-url="<?= e(url('admin/login.php')) ?>">
+                    <input type="hidden" name="page" id="page" value="<?= e($filter->pageId ?? '') ?>">
+                    <div class="picker__field">
+                        <i class="bi bi-search picker__icon" aria-hidden="true"></i>
+                        <input class="form-control picker__input" id="page-search" type="text" role="combobox"
+                               value="<?= e($selectedLabel) ?>" placeholder="All pages"
+                               autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="100"
+                               aria-autocomplete="list" aria-expanded="false" aria-controls="page-listbox"
+                               aria-describedby="page-picker-help">
+                        <button class="picker__clear" type="button" data-picker-clear aria-label="Clear page, show all pages"<?= $selectedPage === null ? ' hidden' : '' ?>>
+                            <i class="bi bi-x-lg" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <div class="picker__popup" data-picker-popup hidden>
+                        <ul class="picker__list" id="page-listbox" role="listbox" aria-labelledby="page-label"></ul>
+                        <div class="picker__foot" data-picker-foot></div>
+                    </div>
+                    <p class="visually-hidden" id="page-picker-help">Type to search pages by title or address. Use the arrow keys to choose a page.</p>
+                    <p class="visually-hidden" data-picker-status role="status" aria-live="polite"></p>
+                </div>
             </div>
             <div class="col-md-4 col-xl-2">
                 <label class="form-label" for="granularity">Group by</label>
@@ -175,16 +200,19 @@ $today = (new DateTimeImmutable())->format('Y-m-d');
             </section>
         </div>
 
-        <section class="booth-panel report__detail" aria-labelledby="table-title">
+        <section class="booth-panel report__detail" id="pages-table-panel" aria-labelledby="table-title" aria-busy="false">
             <div class="booth-panel__header">
                 <h2 class="panel-label" id="table-title">Page breakdown</h2>
+                <p class="panel-hint" id="pages-table-range" aria-live="polite"></p>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 breakdown">
+                <table class="table table-hover align-middle mb-0 breakdown" aria-describedby="pages-table-range">
                     <thead id="pages-table-head"></thead>
                     <tbody id="pages-table-body"></tbody>
                 </table>
             </div>
+            <?php /* Filled by dashboard.js: the table is paged on the server, 10 pages (stories) at a time. */ ?>
+            <nav class="table-pager" id="pages-table-pager" aria-label="Page breakdown pages" hidden></nav>
         </section>
     </div>
 </div>

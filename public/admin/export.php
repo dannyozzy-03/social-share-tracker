@@ -5,6 +5,7 @@ declare(strict_types=1);
 require dirname(__DIR__, 2) . '/src/bootstrap.php';
 
 use App\Database;
+use App\Exception\DatabaseException;
 use App\Repository\PlatformRepository;
 use App\Security\Auth;
 use App\Stats\ShareStats;
@@ -41,7 +42,13 @@ $safe = static fn (?string $value): string => preg_match('/^[=+\-@\t\r]/', (stri
 $out = fopen('php://output', 'wb');
 fwrite($out, "\xEF\xBB\xBF"); // UTF-8 BOM so Excel detects the encoding
 fputcsv($out, ['clicked_at', 'platform', 'page_url', 'page_title'], ',', '"', '');
-foreach ((new ShareStats($db))->exportRows($filter) as $row) {
-    fputcsv($out, [$row['created_at'], $safe($row['platform']), $safe($row['url']), $safe($row['title'])], ',', '"', '');
+try {
+    foreach ((new ShareStats($db))->exportRows($filter) as $row) {
+        fputcsv($out, [$row['created_at'], $safe($row['platform']), $safe($row['url']), $safe($row['title'])], ',', '"', '');
+    }
+} catch (DatabaseException $e) {
+    // Headers (200) are already sent, so say so in the file instead of handing over a silently short export.
+    error_log((string) $e);
+    fputcsv($out, ['EXPORT INCOMPLETE: a database error interrupted the export. Please try again.'], ',', '"', '');
 }
 fclose($out);

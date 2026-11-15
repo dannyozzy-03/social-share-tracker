@@ -29,6 +29,8 @@ $isHome = ($_SERVER['SCRIPT_NAME'] ?? '') !== '' && str_ends_with((string) $_SER
         <meta name="robots" content="noindex">
     <?php else: ?>
         <link rel="canonical" href="<?= e($meta['url']) ?>">
+        <?php if (!empty($meta['prev'])): ?><link rel="prev" href="<?= e($meta['prev']) ?>"><?php endif; ?>
+        <?php if (!empty($meta['next'])): ?><link rel="next" href="<?= e($meta['next']) ?>"><?php endif; ?>
     <?php endif; ?>
 
     <meta property="og:site_name" content="<?= e($siteName) ?>">
@@ -57,7 +59,7 @@ $isHome = ($_SERVER['SCRIPT_NAME'] ?? '') !== '' && str_ends_with((string) $_SER
     <link rel="icon" href="<?= e(asset('img/favicon.svg')) ?>" type="image/svg+xml">
     <link rel="preload" href="<?= e(url('assets/fonts/poppins-700.woff2')) ?>" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
     <link rel="stylesheet" href="<?= e(asset('css/theme.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset('css/site.css')) ?>">
     <script type="speculationrules">
@@ -108,7 +110,8 @@ $isHome = ($_SERVER['SCRIPT_NAME'] ?? '') !== '' && str_ends_with((string) $_SER
 </nav>
 
 <?= View::fetch('site/story-ticker', [
-    'articles' => ArticleRepository::all(),
+    // The strip scrolls forever, so it shows the newest stories only, not the whole archive.
+    'articles' => ArticleRepository::latest(10),
     'currentSlug' => is_string($_GET['slug'] ?? null) ? $_GET['slug'] : null,
 ]) ?>
 

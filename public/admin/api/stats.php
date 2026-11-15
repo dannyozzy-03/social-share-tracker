@@ -9,6 +9,7 @@ use App\Repository\PlatformRepository;
 use App\Security\Auth;
 use App\Stats\ShareStats;
 use App\Stats\StatsFilter;
+use App\Support\Paginator;
 use App\Validation\ValidationException;
 
 Auth::requireLogin(json: true);
@@ -23,4 +24,10 @@ try {
     json_response(['ok' => false, 'errors' => $e->errors()], 422);
 }
 
-json_response(['ok' => true] + (new ShareStats($db))->report($filter, $platforms));
+// Page of the "Page breakdown" table; too high a number is clamped to the last page.
+$breakdownPage = Paginator::parsePage($_GET['breakdown_page'] ?? null);
+if ($breakdownPage === null) {
+    json_response(['ok' => false, 'errors' => ['breakdown_page' => 'Invalid table page.']], 422);
+}
+
+json_response(['ok' => true] + (new ShareStats($db))->report($filter, $platforms, $breakdownPage));

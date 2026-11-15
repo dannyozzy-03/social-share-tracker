@@ -4,12 +4,19 @@ declare(strict_types=1);
 
 namespace App\Stats;
 
+use App\Exception\DatabaseException;
+use App\Support\Paginator;
 use DateTimeImmutable;
 use Generator;
 use PDO;
+use PDOException;
 
 final class ShareStats
 {
+    /** Rows per page of the dashboard's "Page breakdown" table; also the size of the top-pages chart. */
+    public const BREAKDOWN_PER_PAGE = 10;
+    public const BREAKDOWN_MAX_PER_PAGE = 100;
+
     /** Interpolated into SQL, so keys are whitelisted granularities. */
     private const BUCKETS = [
         'day' => 'DATE(c.created_at)',
@@ -23,9 +30,50 @@ final class ShareStats
 
     /**
      * @param list<array<string, mixed>> $platforms
+     * @param int $breakdownPage which page of the "Page breakdown" table to include
+     * @return array<string, mixed>
+     * @throws DatabaseException
+     */
+    public function report(StatsFilter $filter, array $platforms, int $breakdownPage = 1): array
+    {
+        try {
+            return $this->buildReport($filter, $platforms, $breakdownPage);
+        } catch (PDOException $e) {
+            throw DatabaseException::during('build the share report', $e);
+        }
+    }
+
+    /**
+     * Rows are fetched one at a time, so the caller can stream them.
+     * @return Generator<int, array{created_at: string, platform: string, url: string, title: ?string}>
+     * @throws DatabaseException
+     */
+    public function exportRows(StatsFilter $filter): Generator
+    {
+        [$where, $params] = $this->where($filter);
+        try {
+            $stmt = $this->db->prepare(
+                "SELECT c.created_at, pl.name AS platform, p.url, p.title
+                 FROM share_clicks c
+                 JOIN platforms pl ON pl.id = c.platform_id
+                 JOIN pages p ON p.id = c.page_id
+                 $where
+                 ORDER BY c.created_at, c.id"
+            );
+            $stmt->execute($params);
+            while (($row = $stmt->fetch()) !== false) {
+                yield $row;
+            }
+        } catch (PDOException $e) {
+            throw DatabaseException::during('export the share clicks', $e);
+        }
+    }
+
+    /**
+     * @param list<array<string, mixed>> $platforms
      * @return array<string, mixed>
      */
-    public function report(StatsFilter $filter, array $platforms): array
+    private function buildReport(StatsFilter $filter, array $platforms, int $breakdownPage): array
     {
         $counts = $this->countsByPlatform($filter);
 
@@ -39,32 +87,19 @@ final class ShareStats
         ], $shown);
         usort($byPlatform, static fn (array $a, array $b): int => $b['count'] <=> $a['count']);
 
+        $summary = $this->summary($filter, $byPlatform);
+        // The chart shows the top 10; the table pages through all of them, reusing the top 10 for page 1.
+        $topPages = $this->topPages($filter, $shown);
+
         return [
             'filters' => $filter->toArray(),
-            'summary' => $this->summary($filter, $byPlatform),
+            'summary' => $summary,
             'timeseries' => $this->timeseries($filter, $shown),
             'by_platform' => $byPlatform,
-            'top_pages' => $this->topPages($filter, $shown),
+            'top_pages' => $topPages,
+            'breakdown' => $this->breakdown($filter, $shown, $breakdownPage, self::BREAKDOWN_PER_PAGE, $summary['pages'], $topPages),
             'recent' => $this->recent($filter, $platforms),
         ];
-    }
-
-    /** @return Generator<int, array{created_at: string, platform: string, url: string, title: ?string}> */
-    public function exportRows(StatsFilter $filter): Generator
-    {
-        [$where, $params] = $this->where($filter);
-        $stmt = $this->db->prepare(
-            "SELECT c.created_at, pl.name AS platform, p.url, p.title
-             FROM share_clicks c
-             JOIN platforms pl ON pl.id = c.platform_id
-             JOIN pages p ON p.id = c.page_id
-             $where
-             ORDER BY c.created_at, c.id"
-        );
-        $stmt->execute($params);
-        while (($row = $stmt->fetch()) !== false) {
-            yield $row;
-        }
     }
 
     /** @return array<int, int> platform_id => clicks */
@@ -137,21 +172,71 @@ final class ShareStats
     }
 
     /**
+     * One page of the "Page breakdown" table: pages ranked by shares in the filter period,
+     * with per-platform counts and their overall rank. The page number is clamped, so a page
+     * that no longer exists (e.g. after narrowing the filter) returns the last one instead.
+     *
+     * @param list<array<string, mixed>> $platforms columns of the table
+     * @return array{rows: list<array<string, mixed>>, page: int, per_page: int, total: int, pages: int}
+     * @throws DatabaseException
+     */
+    public function pageBreakdown(StatsFilter $filter, array $platforms, int $page = 1, int $perPage = self::BREAKDOWN_PER_PAGE): array
+    {
+        try {
+            return $this->breakdown($filter, $platforms, $page, $perPage, null, null);
+        } catch (PDOException $e) {
+            throw DatabaseException::during('load the page breakdown', $e);
+        }
+    }
+
+    /**
+     * @param list<array<string, mixed>> $platforms
+     * @param int|null $total distinct pages in the period, when the caller already counted them
+     * @param list<array<string, mixed>>|null $firstPage rows 1..perPage, when already loaded
+     * @return array{rows: list<array<string, mixed>>, page: int, per_page: int, total: int, pages: int}
+     */
+    private function breakdown(StatsFilter $filter, array $platforms, int $page, int $perPage, ?int $total, ?array $firstPage): array
+    {
+        if ($total === null) {
+            [$where, $params] = $this->where($filter);
+            $stmt = $this->db->prepare("SELECT COUNT(DISTINCT c.page_id) FROM share_clicks c $where");
+            $stmt->execute($params);
+            $total = (int) $stmt->fetchColumn();
+        }
+
+        $pager = new Paginator($total, min(max(1, $perPage), self::BREAKDOWN_MAX_PER_PAGE), $page);
+        $rows = match (true) {
+            $total === 0 => [],
+            $pager->page === 1 && $firstPage !== null => $firstPage,
+            default => $this->topPages($filter, $platforms, $pager->perPage, $pager->offset()),
+        };
+        foreach ($rows as $i => $row) {
+            $rows[$i]['rank'] = $pager->offset() + $i + 1;
+        }
+
+        return ['rows' => $rows] + $pager->toArray();
+    }
+
+    /**
+     * Pages ranked by shares in the period (ties by ID, so paging is stable), with per-platform counts.
      * @param list<array<string, mixed>> $platforms
      * @return list<array<string, mixed>>
      */
-    private function topPages(StatsFilter $filter, array $platforms, int $limit = 10): array
+    private function topPages(StatsFilter $filter, array $platforms, int $limit = self::BREAKDOWN_PER_PAGE, int $offset = 0): array
     {
         [$where, $params] = $this->where($filter);
-        $stmt = $this->db->prepare(
+        // $limit and $offset are ints from the caller (clamped by Paginator), never request strings.
+        $stmt = $this->db->prepare(sprintf(
             "SELECT p.id, p.url, p.title, COUNT(*) AS total
              FROM share_clicks c
              JOIN pages p ON p.id = c.page_id
              $where
              GROUP BY p.id, p.url, p.title
              ORDER BY total DESC, p.id
-             LIMIT $limit"
-        );
+             LIMIT %d OFFSET %d",
+            $limit,
+            $offset
+        ));
         $stmt->execute($params);
         $pages = $stmt->fetchAll();
         if ($pages === []) {

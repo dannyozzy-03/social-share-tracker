@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+/**
+ * URL clean-up, so the same page is always counted as one.
+ *
+ * Error handling: pure. Invalid input returns null instead of throwing.
+ */
 final class Url
 {
     public const MAX_LENGTH = 2048;

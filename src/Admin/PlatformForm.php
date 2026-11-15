@@ -4,10 +4,17 @@ declare(strict_types=1);
 
 namespace App\Admin;
 
+use App\Exception\DatabaseException;
 use App\Repository\PlatformRepository;
 use App\Validation\ValidationException;
 use App\Validation\Validator;
 
+/**
+ * Validates the add/edit platform form.
+ *
+ * Error handling: validation only. It throws ValidationException for bad input and lets the
+ * repository's DatabaseException pass through, since it cannot fix a database fault itself.
+ */
 final class PlatformForm
 {
     public function __construct(private PlatformRepository $platforms)
@@ -17,7 +24,8 @@ final class PlatformForm
     /**
      * @param array<string, mixed> $input
      * @return array<string, mixed>
-     * @throws ValidationException
+     * @throws ValidationException listing every invalid field
+     * @throws DatabaseException from the slug lookup (pure validation otherwise, nothing to catch here)
      */
     public function validate(array $input, bool $creating): array
     {

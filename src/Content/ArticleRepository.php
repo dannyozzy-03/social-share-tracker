@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App\Content;
 
+/**
+ * The site's stories, held in code.
+ *
+ * Error handling: pure (no database, no files beyond asset version stamps), so there is nothing to catch.
+ */
 final class ArticleRepository
 {
     /** @return list<array<string, mixed>> */
@@ -346,6 +351,35 @@ final class ArticleRepository
     public static function url(array $article): string
     {
         return app_url('article.php?slug=' . rawurlencode($article['slug']));
+    }
+
+    /**
+     * The newest $limit stories (the list is kept newest first).
+     * @return list<array<string, mixed>>
+     */
+    public static function latest(int $limit): array
+    {
+        return array_slice(self::all(), 0, max(0, $limit));
+    }
+
+    /**
+     * The $limit most shared stories, most shares first. Ties keep the list's order (newest
+     * first) because usort() is stable. Ranking needs every story's count, but only the top
+     * few are rendered, so the list stays short however many stories exist.
+     *
+     * @param list<array<string, mixed>> $articles
+     * @param array<string, int> $shareCounts keyed by article URL
+     * @return list<array<string, mixed>>
+     */
+    public static function mostShared(array $articles, array $shareCounts, int $limit): array
+    {
+        // Look each count up once, then sort the positions: O(n log n) comparisons, n URL builds.
+        $counts = array_map(static fn (array $article): int => $shareCounts[self::url($article)] ?? 0, array_values($articles));
+        $order = array_keys($counts);
+        usort($order, static fn (int $a, int $b): int => $counts[$b] <=> $counts[$a] ?: $a <=> $b);
+        $articles = array_values($articles);
+
+        return array_map(static fn (int $i): array => $articles[$i], array_slice($order, 0, max(0, $limit)));
     }
 
     public static function readingMinutes(array $article): int

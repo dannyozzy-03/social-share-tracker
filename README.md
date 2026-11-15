@@ -150,6 +150,7 @@ Keep this terminal open while you use the site. Press `Ctrl + C` to stop it.
 2. The share window opens, and the counter next to the buttons goes up.
 3. Open the admin dashboard. The new click appears within 10 seconds, with no page reload.
 4. Use the filters (date, platform, page) or export the data to CSV.
+5. To see the dashboard with a big site, add 2,000 extra shared pages: `php bin/seed-demo.php --archive=2000`. Then pick **90 days** to page through them in **Page breakdown**, or search them in the **Page** filter. Remove them again with `php bin/seed-demo.php --remove-archive`. Your own data is never touched. Screenshots are in [docs/DETAILS.md](docs/DETAILS.md#try-it-with-a-big-archive).
 
 ---
 

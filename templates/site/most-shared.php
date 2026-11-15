@@ -1,17 +1,17 @@
 <?php
 /**
- * @var list<array<string, mixed>> $articles
+ * @var list<array<string, mixed>> $articles Every story; only the top $limit are shown.
  * @var array<string, int> $shareCounts keyed by page URL
  * @var string|null $variant
+ * @var int|null $limit How many stories to rank (default 5).
  */
 
 use App\Content\ArticleRepository;
 
 $shares = static fn (int $n): string => number_format($n) . ($n === 1 ? ' share' : ' shares');
 $variant ??= 'default';
-$ranked = $articles;
-usort($ranked, static fn (array $a, array $b): int =>
-    ($shareCounts[ArticleRepository::url($b)] ?? 0) <=> ($shareCounts[ArticleRepository::url($a)] ?? 0));
+// A top-N chart, not an index: however many stories exist, only the leaders are rendered.
+$ranked = ArticleRepository::mostShared($articles, $shareCounts, $limit ?? 5);
 ?>
 <aside class="ranked<?= $variant === 'section' ? ' ranked--section' : '' ?>" aria-labelledby="ranked-title">
     <div class="ranked__head">

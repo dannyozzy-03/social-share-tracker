@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App\Share;
 
+/**
+ * Fills a platform's share URL template with a page's URL, title and description.
+ *
+ * Error handling: pure string work, so there is nothing to catch.
+ */
 final class ShareLinkBuilder
 {
     /** @param array{url: string, title?: string|null, description?: string|null} $page */

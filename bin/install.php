@@ -46,6 +46,7 @@ if (!is_file($configFile)) {
 require "$root/src/bootstrap.php";
 
 use App\Database;
+use App\Exception\DatabaseException;
 use App\Repository\AdminRepository;
 use App\Support\DemoSeeder;
 use App\Support\SqlFile;
@@ -57,22 +58,32 @@ if (!preg_match('/^[A-Za-z0-9_]{1,64}$/', $dbName)) {
 }
 try {
     $server = Database::connect(false);
-} catch (PDOException $e) {
-    fwrite(STDERR, "Could not connect to MySQL at " . config('db.host') . ':' . config('db.port')
-        . " as '" . config('db.user') . "': " . $e->getMessage() . "\nCheck the db settings in config/config.php.\n");
+} catch (DatabaseException $e) {
+    fwrite(STDERR, $e->getMessage() . "\nCheck the db settings (MySQL user '" . config('db.user') . "') in config/config.php.\n");
     exit(1);
 }
-$server->exec("CREATE DATABASE IF NOT EXISTS `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+try {
+    $server->exec("CREATE DATABASE IF NOT EXISTS `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+} catch (PDOException $e) {
+    fwrite(STDERR, "Could not create the database `$dbName`: " . $e->getMessage() . "\n"
+        . "Create it yourself, or use a MySQL user that is allowed to.\n");
+    exit(1);
+}
 echo "[ok] Database `$dbName` is ready\n";
 
 $db = Database::connection();
 
 if (isset($options['fresh'])) {
-    $db->exec('SET FOREIGN_KEY_CHECKS = 0');
-    foreach (['share_clicks', 'pages', 'platforms', 'login_attempts', 'admins'] as $table) {
-        $db->exec("DROP TABLE IF EXISTS `$table`");
+    try {
+        $db->exec('SET FOREIGN_KEY_CHECKS = 0');
+        foreach (['share_clicks', 'pages', 'platforms', 'login_attempts', 'admins'] as $table) {
+            $db->exec("DROP TABLE IF EXISTS `$table`");
+        }
+    } catch (PDOException $e) {
+        throw DatabaseException::during('drop the existing tables', $e);
+    } finally {
+        $db->exec('SET FOREIGN_KEY_CHECKS = 1');
     }
-    $db->exec('SET FOREIGN_KEY_CHECKS = 1');
     echo "[ok] Dropped existing tables (--fresh)\n";
 }
 SqlFile::run($db, "$root/database/schema.sql");
@@ -104,9 +115,7 @@ if ($password === null && $admins->findByUsername($username) !== null) {
 }
 
 if (isset($options['demo'])) {
-    $seeder = new DemoSeeder($db);
-    $seeder->clear();
-    echo '[ok] Generated ' . number_format($seeder->run(90)) . " demo share clicks for the last 90 days\n";
+    echo '[ok] Generated ' . number_format((new DemoSeeder($db))->replace(90)) . " demo share clicks for the last 90 days\n";
 }
 
 echo "\nDone. Start the site with:\n  php -S localhost:8000 -t public\n"
