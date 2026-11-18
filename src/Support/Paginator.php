@@ -6,7 +6,9 @@ namespace App\Support;
 
 /**
  * Page arithmetic for any list shown a page at a time (front-page stories, dashboard table).
- * Pure: it only counts, so it never throws.
+ *
+ * Error handling: pure arithmetic, so there is nothing to catch, and it never throws: an
+ * out-of-range page is clamped, and parsePage() returns null for input the caller should reject.
  */
 final class Paginator
 {

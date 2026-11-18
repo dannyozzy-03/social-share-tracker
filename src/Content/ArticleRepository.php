@@ -7,7 +7,8 @@ namespace App\Content;
 /**
  * The site's stories, held in code.
  *
- * Error handling: pure (no database, no files beyond asset version stamps), so there is nothing to catch.
+ * Error handling: the stories are held in code (no database, no files beyond asset version
+ * stamps), so there is nothing to catch.
  */
 final class ArticleRepository
 {

@@ -9,8 +9,8 @@ use DateTimeImmutable;
 /**
  * Format checks for request input.
  *
- * Error handling: pure. Checks return true/false or null instead of throwing; callers collect the
- * failures into a ValidationException.
+ * Error handling: pure checks, so there is nothing to catch. They return true/false or null
+ * instead of throwing; callers collect the failures into a ValidationException.
  */
 final class Validator
 {

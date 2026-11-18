@@ -2,7 +2,20 @@
 
 declare(strict_types=1);
 
+use App\Exception\AppException;
+use App\Repository\AdminRepository;
 use App\Security\Auth;
+
+/** An in-memory admins table holding "admin" / "right-password" (a cheap hash keeps the test fast). */
+$admins = static function (): AdminRepository {
+    $pdo = new PDO('sqlite::memory:', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]);
+    $pdo->exec('CREATE TABLE admins (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password_hash TEXT, last_login_at TEXT)');
+    $pdo->prepare('INSERT INTO admins (username, password_hash) VALUES (?, ?)')
+        ->execute(['admin', password_hash('right-password', PASSWORD_BCRYPT, ['cost' => 4])]);
+    $pdo->sqliteCreateFunction('NOW', static fn (): string => date('Y-m-d H:i:s'), 0);
+
+    return new AdminRepository($pdo);
+};
 
 /** Runs $fn with $_SESSION set to $session, then restores whatever was there. */
 $withSession = static function (array $session, callable $fn): mixed {
@@ -50,6 +63,35 @@ return [
         $withSession($admin(60), function (): void {
             Auth::logout();
             check_same([], $_SESSION);
+        });
+    },
+    'unknown usernames are checked against a hash as costly as a real one, which nothing matches' => function (): void {
+        // Same algorithm and cost as a new password hash, so a wrong username takes as long as a
+        // wrong password; generating a hash per attempt (the old way) took twice as long.
+        $dummy = password_get_info(Auth::unknownUserHash());
+        $real = password_get_info(password_hash('any password', PASSWORD_DEFAULT));
+        check_same($real['algo'], $dummy['algo']);
+        check_same($real['options']['cost'] ?? null, $dummy['options']['cost'] ?? null);
+        check_same(false, password_needs_rehash(Auth::unknownUserHash(), PASSWORD_DEFAULT));
+        foreach (['', 'password', 'Admin@12345', str_repeat('.', 53)] as $password) {
+            check_same(false, password_verify($password, Auth::unknownUserHash()), "\"$password\" must not match the dummy hash.");
+        }
+    },
+    'a wrong username or password signs nobody in' => function () use ($withSession, $admins): void {
+        $withSession([], function () use ($admins): void {
+            $repository = $admins();
+            check_same(false, Auth::attempt($repository, 'nobody', 'right-password'));
+            check_same(false, Auth::attempt($repository, 'admin', 'wrong-password'));
+            check_same([], $_SESSION, 'A failed attempt must not touch the session.');
+        });
+    },
+    'sign-in fails closed when the session ID cannot be renewed' => function () use ($withSession, $admins): void {
+        // There is no active session in the test runner, so PHP refuses to regenerate the ID.
+        $withSession([], function () use ($admins): void {
+            $e = check_throws(AppException::class, fn () => Auth::attempt($admins(), 'admin', 'right-password'));
+            check_same('Could not renew the admin session.', $e->getMessage());
+            check($e->getPrevious() instanceof ErrorException, "PHP's warning must be kept as the previous exception.");
+            check(!isset($_SESSION['admin']), 'Nobody may be signed in on the old session ID.');
         });
     },
 ];

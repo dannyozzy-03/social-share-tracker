@@ -10,6 +10,8 @@ declare(strict_types=1);
  *   2. Every class that runs SQL catches PDOException, and every one of its public methods turns
  *      a driver error into a DatabaseException (checked by calling them against a failing PDO).
  *   3. The classes without any try/catch are exactly the pure ones, and they do no I/O.
+ *   4. Every class says which of these it is in an "Error handling:" line in its class comment,
+ *      and that line matches the code: "nothing to catch" exactly when it has no try/catch.
  */
 
 use App\Exception\AppException;
@@ -164,5 +166,27 @@ return [
         $expected = $pureClasses;
         sort($expected);
         check_same($expected, $withoutCatch, 'A class without try/catch must be pure and listed here and in docs/DETAILS.md.');
+    },
+    'every class states its error handling in its class comment, and the statement matches the code' => function () use ($classFiles, $codeOf): void {
+        $checked = 0;
+        foreach ($classFiles() as $path => $class) {
+            $comment = (string) (new ReflectionClass($class))->getDocComment();
+            check(str_contains($comment, 'Error handling:'), "$class: its class comment needs an \"Error handling:\" line (see docs/DETAILS.md).");
+            // The statement runs from the last "Error handling:" to the end of the comment or the first @tag.
+            $statement = preg_replace('/\s*\*\s*/', ' ', substr($comment, (int) strrpos($comment, 'Error handling:')));
+            $statement = strtolower((string) preg_replace('#\s+(?:/$|@\w).*$#s', '', (string) $statement));
+            $catches = str_contains($codeOf($path), 'catch (');
+
+            if (is_subclass_of($class, Throwable::class)) {
+                check(str_contains($statement, 'thrown by'), "$class: say which classes throw it and how it is answered.");
+            } elseif ($catches) {
+                check(!str_contains($statement, 'nothing to catch'), "$class catches errors, but its comment says it has nothing to catch.");
+                check(preg_match('/\b(catch|catches|wrapped|becomes|rolls back)\b/', $statement) === 1, "$class: say what it catches and what it throws instead.");
+            } else {
+                check(str_contains($statement, 'nothing to catch'), "$class has no try/catch, so its comment must say it has nothing to catch, and why.");
+            }
+            $checked++;
+        }
+        check($checked >= 27, "Expected to check every class in src/, only checked $checked.");
     },
 ];

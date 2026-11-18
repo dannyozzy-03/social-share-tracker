@@ -10,6 +10,12 @@ use DateTimeInterface;
 use PDO;
 use PDOException;
 
+/**
+ * Recorded share clicks and the share totals shown on the website.
+ *
+ * Error handling: every public method catches PDOException and rethrows it as DatabaseException
+ * naming the operation, with the driver error as the previous exception.
+ */
 final class ShareClickRepository
 {
     public function __construct(private PDO $db)

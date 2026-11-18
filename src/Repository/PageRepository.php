@@ -8,6 +8,12 @@ use App\Exception\DatabaseException;
 use PDO;
 use PDOException;
 
+/**
+ * Shared pages, found by a hash of their cleaned-up URL, and the dashboard's page search.
+ *
+ * Error handling: every public method catches PDOException and rethrows it as DatabaseException
+ * naming the operation, with the driver error as the previous exception.
+ */
 final class PageRepository
 {
     public const SEARCH_MAX_LIMIT = 50;

@@ -11,7 +11,8 @@ use DateTimeImmutable;
 /**
  * The dashboard's validated filters: date range, grouping, platforms and page.
  *
- * Error handling: pure. Bad input throws ValidationException listing every invalid field.
+ * Error handling: pure validation with no I/O, so there is nothing to catch. Bad input throws
+ * ValidationException listing every invalid field.
  */
 final class StatsFilter
 {

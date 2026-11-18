@@ -106,8 +106,10 @@ if ($password === null && $admins->findByUsername($username) !== null) {
         $password = rtrim(strtr(base64_encode(random_bytes(12)), '+/', 'Kq'), '=');
         $generated = true;
     }
-    if (strlen($password) < 8) {
-        fwrite(STDERR, "The admin password must be at least 8 characters.\n");
+    // Same limits as bin/create-admin.php. bcrypt reads only the first 72 bytes, so the sign-in
+    // form refuses longer passwords: one saved here could never be used to sign in.
+    if (strlen($password) < 8 || strlen($password) > 72) {
+        fwrite(STDERR, "The admin password must be 8-72 characters.\n");
         exit(1);
     }
     $admins->upsert($username, $password);

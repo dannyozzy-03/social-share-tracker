@@ -12,6 +12,13 @@ use PDO;
 use PDOException;
 use Throwable;
 
+/**
+ * Demo share data: 90 days of clicks for the site's stories, plus an optional big "archive".
+ *
+ * Error handling: every public method runs in one transaction. On any failure it rolls back,
+ * so no half-written data is left, and a PDOException is rethrown as DatabaseException naming
+ * the operation; any other error is rethrown unchanged.
+ */
 final class DemoSeeder
 {
     /** Host of the archive pages; ".example" is reserved for examples (RFC 2606), so it can never be a real site. */

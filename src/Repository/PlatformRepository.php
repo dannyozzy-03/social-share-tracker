@@ -8,6 +8,13 @@ use App\Exception\DatabaseException;
 use PDO;
 use PDOException;
 
+/**
+ * Share platforms (Facebook, WhatsApp, …). They are hidden, never deleted, so old clicks keep their platform.
+ *
+ * Error handling: every public method catches PDOException and rethrows it as DatabaseException
+ * naming the operation, with the driver error as the previous exception. create() keeps the
+ * SQLSTATE, so a slug taken by a concurrent request can be shown as a form error.
+ */
 final class PlatformRepository
 {
     private const COLUMNS = ['slug', 'name', 'share_url_template', 'icon', 'color', 'sort_order', 'is_active'];

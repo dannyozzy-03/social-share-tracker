@@ -7,6 +7,12 @@ namespace App\Security;
 use App\Exception\AppException;
 use Exception;
 
+/**
+ * One CSRF token per admin session, checked on every admin form.
+ *
+ * Error handling: the only I/O is random_bytes(). It catches the failure when the system has no
+ * secure random source and throws AppException instead, rather than issuing a guessable token.
+ */
 final class Csrf
 {
     private const KEY = '_csrf';

@@ -12,8 +12,9 @@ use App\Validation\Validator;
 /**
  * Validates the add/edit platform form.
  *
- * Error handling: validation only. It throws ValidationException for bad input and lets the
- * repository's DatabaseException pass through, since it cannot fix a database fault itself.
+ * Error handling: validation with no I/O of its own, so there is nothing to catch. It throws
+ * ValidationException for bad input and lets the repository's DatabaseException pass through,
+ * since it cannot fix a database fault itself.
  */
 final class PlatformForm
 {
@@ -25,7 +26,7 @@ final class PlatformForm
      * @param array<string, mixed> $input
      * @return array<string, mixed>
      * @throws ValidationException listing every invalid field
-     * @throws DatabaseException from the slug lookup (pure validation otherwise, nothing to catch here)
+     * @throws DatabaseException from the slug lookup
      */
     public function validate(array $input, bool $creating): array
     {

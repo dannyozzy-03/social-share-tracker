@@ -7,7 +7,8 @@ namespace App\Support;
 /**
  * URL clean-up, so the same page is always counted as one.
  *
- * Error handling: pure. Invalid input returns null instead of throwing.
+ * Error handling: pure string work, so there is nothing to catch. Invalid input returns null
+ * instead of throwing.
  */
 final class Url
 {
