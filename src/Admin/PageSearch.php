@@ -8,7 +8,12 @@ use App\Repository\PageRepository;
 use App\Validation\ValidationException;
 use App\Validation\Validator;
 
-/** The validated query of the dashboard's page picker (GET admin/api/pages.php). */
+/**
+ * The validated query of the dashboard's page picker (GET admin/api/pages.php).
+ *
+ * Error handling: pure validation with no I/O, so there is nothing to catch. Bad input throws
+ * ValidationException listing every invalid field; admin/api/pages.php answers it with 422.
+ */
 final class PageSearch
 {
     public const MAX_QUERY_LENGTH = 100;

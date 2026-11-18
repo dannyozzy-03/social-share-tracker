@@ -7,7 +7,14 @@ namespace App\Exception;
 use PDOException;
 use Throwable;
 
-/** A database operation failed. The message names the operation, never the SQL or credentials. */
+/**
+ * A database operation failed. The message names the operation, never the SQL or credentials.
+ *
+ * Error handling: thrown by every class that runs SQL. Entry points let it reach the handler in
+ * src/bootstrap.php, which logs it and answers 503 with Retry-After. Two catch it on purpose:
+ * admin/platform-edit.php turns a duplicate slug (sqlState() "23000") into a form error, and
+ * admin/export.php ends a CSV that fails mid-download with an "EXPORT INCOMPLETE" line.
+ */
 final class DatabaseException extends AppException
 {
     private string $sqlState = '';

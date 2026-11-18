@@ -88,6 +88,8 @@ The extra pages live under `https://archive.example/` (a reserved example domain
 
 ![Searching 2,008 pages for "penang hawker"](screenshots/dashboard-page-search.png)
 
+It copes with a much bigger site too. With 50,000 shared pages (`--archive=50000`), the dashboard's HTML stays the same size (about 20 KB), a page search answers in about 0.1 s and the full 90-day report in about 0.2 s (measured on a laptop with PHP's built-in server). The ranking behind **Most shared pages** and **Page breakdown** counts shares per page ID first and only then looks up the 10 pages on screen, which keeps the 10-second live refresh cheap.
+
 ---
 
 ## How a share is tracked
@@ -182,7 +184,7 @@ Defaults are in `config/config.example.php`. Your own values go in `config/confi
 - **SQL injection:** every query uses PDO prepared statements.
 - **XSS:** all output is escaped. The dashboard builds the page with `textContent`, never `innerHTML`. A strict Content-Security-Policy blocks inline scripts.
 - **CSRF:** every admin form has a token, and the tracking API rejects requests from other websites.
-- **Login:** bcrypt passwords, a new session ID on login, secure cookies, an idle timeout and a lockout after 5 wrong passwords.
+- **Login:** bcrypt passwords, a new session ID on login, secure cookies, an idle timeout and a lockout after 5 wrong passwords. An unknown username takes as long to reject as a wrong password, so response times don't reveal which usernames exist. If the session ID cannot be renewed, sign-in is refused rather than continuing on the old ID.
 - **Tracking abuse:** only known platforms and allowed websites are accepted. The API also enforces a URL length limit, an 8 KB body limit, a rate limit and 10-second de-duplication.
 - **Privacy:** visitor IPs are stored only as a keyed hash, never as the raw IP.
 - **CSV export:** cells are protected against spreadsheet formula injection. If the database fails mid-download, the file ends with an "EXPORT INCOMPLETE" line instead of being silently short.
@@ -198,8 +200,9 @@ One rule is applied across `src/`:
 
 - **Every exception the app throws extends `App\Exception\AppException`**: `DatabaseException`, `ConfigurationException`, `ValidationException` and `RateLimitException`.
 - **Classes that touch I/O catch the low-level error and rethrow a typed one.** Every public repository method (and `ShareStats`, `LoginThrottle`, `DemoSeeder`, `SqlFile`, `Database`) wraps its queries in `try`/`catch (PDOException)` and throws a `DatabaseException` that names the operation ("Database error while trying to load the platforms") and keeps the driver error as `getPrevious()`. SQL and credentials never appear in the message. `Auth`, `Csrf`, `Config` and `View` do the same for sessions, random tokens, config files and templates.
-- **Pure classes have nothing to catch**: `Validator`, `Url`, `ShareLinkBuilder`, `StatsFilter`, `Paginator`, `PageSearch`, `PlatformForm`, `ShareTracker` and `ArticleRepository` do no I/O. They only throw `ValidationException` (or `RateLimitException`) for bad input, and let a repository's `DatabaseException` pass through untouched. Each says so in its class comment.
-- **The rule is enforced by a test**, `tests/ErrorHandlingConventionTest.php`. It fails if any class runs SQL without catching `PDOException`, or if any public method of a database class lets a raw driver error escape (it calls every one of them against a connection that always fails). It also fails if a class without `try`/`catch` is not on the pure list or does I/O, or if an exception class does not extend `AppException`.
+- **Pure classes have nothing to catch**: `Validator`, `Url`, `ShareLinkBuilder`, `StatsFilter`, `Paginator`, `PageSearch`, `PlatformForm`, `ShareTracker` and `ArticleRepository` do no I/O of their own. They only throw `ValidationException` (or `RateLimitException`) for bad input, and let a repository's `DatabaseException` pass through untouched.
+- **Every class says which kind it is.** Each of the 27 classes in `src/` has an `Error handling:` line in its header comment. It says what the class catches and what it throws instead, or why it has nothing to catch, or (for an exception) who throws it and who answers it. So the rule can be checked file by file, without reading this page.
+- **The rule is enforced by a test**, `tests/ErrorHandlingConventionTest.php`. It fails if any class runs SQL without catching `PDOException`, or if any public method of a database class lets a raw driver error escape (it calls every one of them against a connection that always fails). It also fails if a class without `try`/`catch` is not on the pure list or does I/O, if an exception class does not extend `AppException`, or if a class's `Error handling:` line is missing or doesn't match its code (a class without `try`/`catch` must say it has nothing to catch, and a class with one must say what it catches).
 - **Entry points catch what they can answer**: `422` for validation, `429` for rate limits, a field error for a duplicate platform slug. Everything else reaches the handler in `src/bootstrap.php`, which logs it and answers `503` + `Retry-After` when the database is down, or `500` otherwise, as HTML or JSON. Details are shown only when `app.debug` is on.
 - **Demo data is written in one transaction**, so a failed seed rolls back instead of leaving half-deleted data.
 
@@ -211,7 +214,7 @@ One rule is applied across `src/`:
 php tests/run.php
 ```
 
-90 tests cover pagination, URL cleaning, validation, share links, dashboard filters, the page search and the demo archive (run against an in-memory SQLite database), and the error-handling rule for every class (using a database connection that always fails). The GitHub Actions workflow (`.github/workflows/ci.yml`) runs them on PHP 8.1–8.4. It also installs against a real MySQL 8 database, loads a 500-page archive, and smoke-tests the site, the front-page pages, the share API and the admin's page search and Page breakdown APIs.
+The tests cover pagination, URL cleaning, validation, share links, dashboard filters, sign-in, the page search, the Page breakdown ranking and the demo archive (run against an in-memory SQLite database), and the error-handling rule for every class (using a database connection that always fails). The GitHub Actions workflow (`.github/workflows/ci.yml`) runs them on PHP 8.1–8.4. It also installs against a real MySQL 8 database, loads a 500-page archive, and smoke-tests the site, the front-page pages, the share API and the admin's page search and Page breakdown APIs. It also checks that the dashboard's HTML lists none of those pages.
 
 ---
 

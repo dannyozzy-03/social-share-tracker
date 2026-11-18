@@ -54,6 +54,8 @@
     const clearButton = root.querySelector('[data-picker-clear]');
     const status = root.querySelector('[data-picker-status]');
     const endpoint = root.dataset.endpoint;
+    // A fixed bar the open list must not slide under (the admin's bottom tab bar on phones).
+    const fixedBar = root.dataset.keepClearOf ? document.querySelector(root.dataset.keepClearOf) : null;
 
     let selected = hidden.value ? { id: Number(hidden.value), label: input.value } : null;
     let query = '';
@@ -181,6 +183,25 @@
       setActive(Math.min(activeIndex, optionCount() - 1), { scroll: false });
     }
 
+    // On a phone the list opens low on the screen, where the bottom tab bar or the on-screen
+    // keyboard can cover its end (and the "Show more" button). Scroll the page just enough to
+    // show the whole list, but never so far that the search box leaves the top of the screen.
+    function keepListInView() {
+      if (!isOpen()) {
+        return;
+      }
+      const viewport = window.visualViewport;
+      let visibleBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+      if (fixedBar && fixedBar.getClientRects().length) {
+        visibleBottom = Math.min(visibleBottom, fixedBar.getBoundingClientRect().top);
+      }
+      const covered = popup.getBoundingClientRect().bottom + 8 - visibleBottom;
+      const room = root.getBoundingClientRect().top - 8;
+      if (covered > 0 && room > 0) {
+        window.scrollBy(0, Math.min(covered, room));
+      }
+    }
+
     async function fetchPages(offset) {
       if (controller) {
         controller.abort();
@@ -221,6 +242,9 @@
           list.scrollTop = 0;
         }
         render();
+        if (offset === 0) {
+          keepListInView();
+        }
         announce(pages.length
           ? `${number.format(pages.length)} ${pages.length === 1 ? 'page' : 'pages'}${nextOffset !== null ? ', more available' : ''}.`
           : (query ? 'No matching pages.' : 'No pages have been shared yet.'));
@@ -414,6 +438,10 @@
         close();
       }
     });
+    // The on-screen keyboard shrinks the visible area after the list has opened.
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', keepListInView);
+    }
 
     return {
       /** Selects a page ({id, title, url}) or null for all pages, without calling onChange. */

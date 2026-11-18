@@ -7,7 +7,13 @@ namespace App;
 use App\Exception\ConfigurationException;
 use Throwable;
 
-/** Templates must escape all output with e(). */
+/**
+ * Renders the PHP templates in templates/. Templates must escape all output with e().
+ *
+ * Error handling: an unknown or suspicious template name throws ConfigurationException. When a
+ * template fails while rendering, it catches the error, discards the partial output and rethrows
+ * the error unchanged, so the error page is never appended to half a page.
+ */
 final class View
 {
     /** @param array<string, mixed> $data */

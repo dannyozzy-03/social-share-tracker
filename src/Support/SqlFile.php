@@ -10,6 +10,12 @@ use ErrorException;
 use PDO;
 use PDOException;
 
+/**
+ * Runs the SQL scripts in database/ (used by the installer).
+ *
+ * Error handling: a file that cannot be read becomes ConfigurationException; a failing statement
+ * becomes DatabaseException naming the file, the statement's number and its first words.
+ */
 final class SqlFile
 {
     /**

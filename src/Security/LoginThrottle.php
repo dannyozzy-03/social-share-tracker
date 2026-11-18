@@ -9,6 +9,12 @@ use DateTimeImmutable;
 use PDO;
 use PDOException;
 
+/**
+ * Locks out an IP after too many wrong passwords, and prunes old sign-in attempts.
+ *
+ * Error handling: every public method that queries catches PDOException and rethrows it as
+ * DatabaseException naming the operation, with the driver error as the previous exception.
+ */
 final class LoginThrottle
 {
     /** Attempts older than this are deleted; they no longer affect any lockout. */

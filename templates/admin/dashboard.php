@@ -63,7 +63,8 @@ $exportQuery = http_build_query(array_filter([
                 <?php /* Searchable picker: results come from admin/api/pages.php in pages of 20, so it stays fast with any number of articles. */ ?>
                 <div class="picker" id="page-picker"
                      data-endpoint="<?= e(url('admin/api/pages.php')) ?>"
-                     data-login-url="<?= e(url('admin/login.php')) ?>">
+                     data-login-url="<?= e(url('admin/login.php')) ?>"
+                     data-keep-clear-of=".admin-mobile-nav">
                     <input type="hidden" name="page" id="page" value="<?= e($filter->pageId ?? '') ?>">
                     <div class="picker__field">
                         <i class="bi bi-search picker__icon" aria-hidden="true"></i>

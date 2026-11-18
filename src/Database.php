@@ -9,6 +9,13 @@ use DateTimeImmutable;
 use PDO;
 use PDOException;
 
+/**
+ * The shared PDO connection to MySQL.
+ *
+ * Error handling: a failed connection becomes DatabaseException::connection(), which keeps the
+ * driver's reason but not its stack trace (that can hold the password); a failed session setting
+ * becomes DatabaseException::during().
+ */
 final class Database
 {
     private static ?PDO $connection = null;

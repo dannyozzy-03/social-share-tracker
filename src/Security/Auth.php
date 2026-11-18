@@ -9,6 +9,14 @@ use App\Exception\DatabaseException;
 use App\Repository\AdminRepository;
 use ErrorException;
 
+/**
+ * Admin sign-in, the admin session and its idle timeout.
+ *
+ * Error handling: every session call is wrapped. When PHP cannot start, renew or destroy the
+ * session, it throws AppException with PHP's warning as the previous exception, so sign-in and
+ * sign-out fail closed instead of carrying on with a stale session. Database faults arrive as
+ * DatabaseException from AdminRepository.
+ */
 final class Auth
 {
     private const SESSION_KEY = 'admin';
@@ -42,13 +50,17 @@ final class Auth
         }
     }
 
-    /** @throws DatabaseException */
+    /**
+     * @throws DatabaseException
+     * @throws AppException when the session ID cannot be renewed (sign-in is refused)
+     */
     public static function attempt(AdminRepository $admins, string $username, #[\SensitiveParameter] string $password): bool
     {
         $admin = $admins->findByUsername($username);
 
-        // Dummy hash for unknown users so timing doesn't reveal valid usernames.
-        $hash = $admin['password_hash'] ?? password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
+        // An unknown username is checked against a dummy hash of the same cost, so it takes as
+        // long as a wrong password and response times don't reveal which usernames exist.
+        $hash = $admin['password_hash'] ?? self::unknownUserHash();
         if (!password_verify($password, $hash) || $admin === null) {
             return false;
         }
@@ -59,7 +71,7 @@ final class Auth
         $admins->touchLastLogin((int) $admin['id']);
 
         // New session ID and new CSRF token: nothing issued before sign-in stays valid after it.
-        session_regenerate_id(true);
+        self::renewSessionId();
         Csrf::rotate();
         $_SESSION[self::SESSION_KEY] = [
             'id' => (int) $admin['id'],
@@ -68,6 +80,17 @@ final class Auth
         ];
 
         return true;
+    }
+
+    /**
+     * The hash checked for a username that does not exist: a well-formed bcrypt hash at today's
+     * default cost that no password matches. Checking it takes as long as checking a real
+     * password, and building it costs nothing. (Hashing a random password here instead made every
+     * unknown username take twice as long as a wrong password, which gave valid usernames away.)
+     */
+    public static function unknownUserHash(): string
+    {
+        return sprintf('$2y$%02d$%s', PASSWORD_BCRYPT_DEFAULT_COST, str_repeat('.', 53));
     }
 
     /**
@@ -115,6 +138,7 @@ final class Auth
         redirect('admin/login.php' . ($wasSignedIn ? '?expired=1' : ''));
     }
 
+    /** @throws AppException when the session cannot be destroyed, so a failed sign-out is never reported as done */
     public static function logout(): void
     {
         $_SESSION = [];
@@ -130,8 +154,32 @@ final class Auth
                 'samesite' => $params['samesite'],
             ]);
         }
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_destroy();
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return;
+        }
+        try {
+            $destroyed = session_destroy();
+        } catch (ErrorException $e) {
+            throw new AppException('Could not end the admin session.', 0, $e);
+        }
+        if (!$destroyed) {
+            throw new AppException('Could not end the admin session.');
+        }
+    }
+
+    /**
+     * Gives the session a new ID and deletes the old one, so an ID planted before sign-in is useless.
+     * @throws AppException when PHP cannot do it: sign-in then fails instead of keeping the old ID
+     */
+    private static function renewSessionId(): void
+    {
+        try {
+            $renewed = session_regenerate_id(true);
+        } catch (ErrorException $e) {
+            throw new AppException('Could not renew the admin session.', 0, $e);
+        }
+        if (!$renewed) {
+            throw new AppException('Could not renew the admin session.');
         }
     }
 

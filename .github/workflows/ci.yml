@@ -64,6 +64,11 @@ jobs:
           curl -s -b "$jar" -c "$jar" -o /dev/null --data-urlencode "_csrf=$token" \
             --data-urlencode username=admin --data-urlencode "password=$ADMIN_PASSWORD" "$BASE/admin/login.php"
 
+          # The dashboard ships a search box, not the page list: none of the 500 archive pages is in its HTML.
+          dashboard=$(curl -sf -b "$jar" "$BASE/admin/")
+          echo "$dashboard" | grep -q 'role="combobox"'
+          if echo "$dashboard" | grep -q 'archive\.example'; then echo "The dashboard HTML lists archive pages"; exit 1; fi
+
           # Page filter: the search answers in batches of 20, never with the whole archive.
           curl -sf -b "$jar" "$BASE/admin/api/pages.php" | grep -q '"has_more":true'
           curl -sf -b "$jar" "$BASE/admin/api/pages.php?q=penang" | grep -qi '"title":"[^"]*penang'

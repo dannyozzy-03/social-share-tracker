@@ -7,6 +7,12 @@ namespace App;
 use App\Exception\ConfigurationException;
 use Throwable;
 
+/**
+ * Settings: config/config.example.php, with config/config.php merged over it.
+ *
+ * Error handling: a config file that cannot be read, does not parse or does not return an array
+ * becomes ConfigurationException naming the file, with the original error as the previous exception.
+ */
 final class Config
 {
     /** @var array<string, mixed> */

@@ -8,6 +8,12 @@ use App\Exception\DatabaseException;
 use PDO;
 use PDOException;
 
+/**
+ * Admin accounts.
+ *
+ * Error handling: every public method catches PDOException and rethrows it as DatabaseException
+ * naming the operation, with the driver error as the previous exception.
+ */
 final class AdminRepository
 {
     public function __construct(private PDO $db)

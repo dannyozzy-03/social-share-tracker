@@ -16,8 +16,9 @@ use DateTimeImmutable;
 /**
  * Records one share click: validates it, applies the rate limit and the repeat-click window, then stores it.
  *
- * Error handling: no I/O of its own. It throws ValidationException and RateLimitException, and
- * the repositories it calls already turn database faults into DatabaseException.
+ * Error handling: no I/O of its own, so there is nothing to catch. It throws ValidationException
+ * and RateLimitException, and the repositories it calls already turn database faults into
+ * DatabaseException.
  */
 final class ShareTracker
 {
